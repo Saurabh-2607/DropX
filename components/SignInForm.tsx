@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useSignIn } from "@clerk/nextjs"
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { AlertCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod";
