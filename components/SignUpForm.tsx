@@ -18,10 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { use } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RadioGroupItem } from "@/components/ui/radio-group"
-import { EmailAddress } from "@clerk/nextjs/server";
 import { useRouter } from "next/router";
 
 export default function SignUpForm() {
@@ -63,7 +61,7 @@ export default function SignUpForm() {
         }catch(error: any){
             console.error("Signup Error:", error)
             setAuthError(
-                error.errors![0]?.message || "An Error occured dutring the SignUp. Please try again"
+                error.errors?.[0]?.message || "An Error occured dutring the SignUp. Please try again"
             )
         }finally{
             setIsSubmitting(false)
