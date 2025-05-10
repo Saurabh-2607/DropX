@@ -2,7 +2,6 @@
 
 import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ImageKitProvider } from "imagekitio-next";
 import { createContext, useContext } from "react";
@@ -38,7 +37,6 @@ const authenticator = async () => {
 };
 
 export function Providers({ children, themeProps }: ProvidersProps) {
-  const router = useRouter();
 
   return (
       <ImageKitProvider

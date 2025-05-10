@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/card"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RadioGroupItem } from "@/components/ui/radio-group"
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { RadioGroup } from "@radix-ui/react-radio-group";
 
 export default function SignUpForm() {
     const router = useRouter();
@@ -201,10 +202,10 @@ export default function SignUpForm() {
                                 aria-describedby={errors.password ? "password-error" : undefined}
                                 {...register("password")}
                             />
-
-                            <RadioGroupItem value="agreed"/>
-                            <Label htmlFor="agreed"> By signing up, you agree to our Terms of Service and Privacy Policy</Label>
-
+                            <RadioGroup>
+                                <RadioGroupItem value="agreed"/>
+                                <Label htmlFor="agreed"> By signing up, you agree to our Terms of Service and Privacy Policy</Label>
+                            </RadioGroup>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? "Verifying..." : "Verify Email"}
                             </Button>
