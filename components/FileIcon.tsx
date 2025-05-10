@@ -1,15 +1,8 @@
 "use client";
 
 import { Folder, FileText } from "lucide-react";
-import type { File as FileType } from "@/lib/db/schema";
 import { IKImage } from "imagekitio-next";
-
-interface FileType {
-  isFolder: boolean;
-  type: string;
-  path: string;
-  name: string;
-}
+import type { File as FileType } from "@/lib/db/schema";
 
 interface FileIconProps {
   file: FileType;

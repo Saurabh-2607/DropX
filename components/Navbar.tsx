@@ -4,19 +4,15 @@ import { useClerk, SignedIn, SignedOut } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { CloudUpload, ChevronDown, User, Menu, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
-import {
+  Dropdown,
+  DropdownTrigger,
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DropdownItem,
+} from "@heroui/dropdown";
+import { Avatar } from "@heroui/avatar";
+import { Button } from "@heroui/button";
+import { useState, useEffect, useRef } from "react";
 
 interface SerializedUser {
   id: string;
@@ -39,9 +35,11 @@ export default function Navbar({ user }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
+  // Check if we're on the dashboard page
   const isOnDashboard =
     pathname === "/dashboard" || pathname?.startsWith("/dashboard/");
 
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -51,6 +49,7 @@ export default function Navbar({ user }: NavbarProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile menu when window is resized to desktop size
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -62,6 +61,7 @@ export default function Navbar({ user }: NavbarProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Handle body scroll lock when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -74,6 +74,7 @@ export default function Navbar({ user }: NavbarProps) {
     };
   }, [isMobileMenuOpen]);
 
+  // Handle clicks outside the mobile menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -81,6 +82,7 @@ export default function Navbar({ user }: NavbarProps) {
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target as Node)
       ) {
+        // Check if the click is not on the menu button (which has its own handler)
         const target = event.target as HTMLElement;
         if (!target.closest('[data-menu-button="true"]')) {
           setIsMobileMenuOpen(false);
@@ -100,6 +102,7 @@ export default function Navbar({ user }: NavbarProps) {
     });
   };
 
+  // Process user data with defaults if not provided
   const userDetails = {
     fullName: user
       ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
@@ -126,82 +129,103 @@ export default function Navbar({ user }: NavbarProps) {
 
   return (
     <header
-      className={`bg-default-50 border-b border-default-200 sticky top-0 z-50 transition-shadow ${
-        isScrolled ? "shadow-sm" : ""
-      }`}
+      className={`bg-default-50 border-b border-default-200 sticky top-0 z-50 transition-shadow ${isScrolled ? "shadow-sm" : ""}`}
     >
       <div className="container mx-auto py-3 md:py-4 px-4 md:px-6">
         <div className="flex justify-between items-center">
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 z-10">
             <CloudUpload className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-bold">DropX</h1>
           </Link>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex gap-4 items-center">
+            {/* Show these buttons when user is signed out */}
             <SignedOut>
               <Link href="/sign-in">
-                <Button variant="outline">Sign In</Button>
+                <Button variant="flat" color="primary">
+                  Sign In
+                </Button>
               </Link>
               <Link href="/sign-up">
-                <Button>Sign Up</Button>
+                <Button variant="solid" color="primary">
+                  Sign Up
+                </Button>
               </Link>
             </SignedOut>
 
+            {/* Show these when user is signed in */}
             <SignedIn>
               <div className="flex items-center gap-4">
                 {!isOnDashboard && (
                   <Link href="/dashboard">
-                    <Button variant="outline">Dashboard</Button>
+                    <Button variant="flat" color="primary">
+                      Dashboard
+                    </Button>
                   </Link>
                 )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2">
-                      <Avatar>
-                        <AvatarImage
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      variant="flat"
+                      className="p-0 bg-transparent min-w-0"
+                      endContent={<ChevronDown className="h-4 w-4 ml-2" />}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          name={userDetails.initials}
+                          size="sm"
                           src={user?.imageUrl || undefined}
-                          alt={userDetails.displayName}
+                          className="h-8 w-8 flex-shrink-0"
+                          fallback={<User className="h-4 w-4" />}
                         />
-                        <AvatarFallback>
-                          {userDetails.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>{userDetails.displayName}</span>
-                      <ChevronDown className="h-4 w-4" />
+                        <span className="text-default-600 hidden sm:inline">
+                          {userDetails.displayName}
+                        </span>
+                      </div>
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label="User actions">
+                    <DropdownItem
+                      key="profile"
+                      description={userDetails.email || "View your profile"}
                       onClick={() => router.push("/dashboard?tab=profile")}
                     >
                       Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
+                    </DropdownItem>
+                    <DropdownItem
+                      key="files"
+                      description="Manage your files"
                       onClick={() => router.push("/dashboard")}
                     >
                       My Files
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
+                    </DropdownItem>
+                    <DropdownItem
+                      key="logout"
+                      description="Sign out of your account"
                       className="text-danger"
+                      color="danger"
                       onClick={handleSignOut}
                     >
                       Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
               </div>
             </SignedIn>
           </div>
 
+          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
             <SignedIn>
-              <Avatar>
-                <AvatarImage
-                  src={user?.imageUrl || undefined}
-                  alt={userDetails.displayName}
-                />
-                <AvatarFallback>{userDetails.initials}</AvatarFallback>
-              </Avatar>
+              <Avatar
+                name={userDetails.initials}
+                size="sm"
+                src={user?.imageUrl || undefined}
+                className="h-8 w-8 flex-shrink-0"
+                fallback={<User className="h-4 w-4" />}
+              />
             </SignedIn>
             <button
               className="z-50 p-2"
@@ -217,6 +241,7 @@ export default function Navbar({ user }: NavbarProps) {
             </button>
           </div>
 
+          {/* Mobile Menu Overlay */}
           {isMobileMenuOpen && (
             <div
               className="fixed inset-0 bg-black/20 z-40 md:hidden"
@@ -225,6 +250,7 @@ export default function Navbar({ user }: NavbarProps) {
             />
           )}
 
+          {/* Mobile Menu */}
           <div
             ref={mobileMenuRef}
             className={`fixed top-0 right-0 bottom-0 w-4/5 max-w-sm bg-default-50 z-40 flex flex-col pt-20 px-6 shadow-xl transition-transform duration-300 ease-in-out ${
@@ -238,7 +264,7 @@ export default function Navbar({ user }: NavbarProps) {
                   className="w-full"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Button variant="outline" className="w-full">
+                  <Button variant="flat" color="primary" className="w-full">
                     Sign In
                   </Button>
                 </Link>
@@ -247,21 +273,24 @@ export default function Navbar({ user }: NavbarProps) {
                   className="w-full"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Button className="w-full">Sign Up</Button>
+                  <Button variant="solid" color="primary" className="w-full">
+                    Sign Up
+                  </Button>
                 </Link>
               </div>
             </SignedOut>
 
             <SignedIn>
               <div className="flex flex-col gap-6">
+                {/* User info */}
                 <div className="flex items-center gap-3 py-4 border-b border-default-200">
-                  <Avatar>
-                    <AvatarImage
-                      src={user?.imageUrl || undefined}
-                      alt={userDetails.displayName}
-                    />
-                    <AvatarFallback>{userDetails.initials}</AvatarFallback>
-                  </Avatar>
+                  <Avatar
+                    name={userDetails.initials}
+                    size="md"
+                    src={user?.imageUrl || undefined}
+                    className="h-10 w-10 flex-shrink-0"
+                    fallback={<User className="h-5 w-5" />}
+                  />
                   <div>
                     <p className="font-medium">{userDetails.displayName}</p>
                     <p className="text-sm text-default-500">
@@ -270,6 +299,7 @@ export default function Navbar({ user }: NavbarProps) {
                   </div>
                 </div>
 
+                {/* Navigation links */}
                 <div className="flex flex-col gap-4">
                   {!isOnDashboard && (
                     <Link

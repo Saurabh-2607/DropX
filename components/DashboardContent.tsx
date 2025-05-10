@@ -1,15 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardBody, CardHeader } from "@heroui/card";
+import { Tabs, Tab } from "@heroui/tabs";
 import { FileUp, FileText, User } from "lucide-react";
 import FileUploadForm from "@/components/FileUploadForm";
 import FileList from "@/components/FileList";
@@ -66,71 +59,75 @@ export default function DashboardContent({
         </p>
       </div>
 
-      <Tabs defaultValue={activeTab} onValueChange={(key) => setActiveTab(key)}>
-        <TabsList className="grid grid-cols-2 gap-4">
-          <TabsTrigger value="files">
+      <Tabs
+        aria-label="Dashboard Tabs"
+        color="primary"
+        variant="underlined"
+        selectedKey={activeTab}
+        onSelectionChange={(key) => setActiveTab(key as string)}
+        classNames={{
+          tabList: "gap-6",
+          tab: "py-3",
+          cursor: "bg-primary",
+        }}
+      >
+        <Tab
+          key="files"
+          title={
             <div className="flex items-center gap-3">
               <FileText className="h-5 w-5" />
               <span className="font-medium">My Files</span>
             </div>
-          </TabsTrigger>
-          <TabsTrigger value="profile">
-            <div className="flex items-center gap-3">
-              <User className="h-5 w-5" />
-              <span className="font-medium">Profile</span>
-            </div>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="files">
+          }
+        >
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <Card>
+              <Card className="border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="flex gap-3">
                   <FileUp className="h-5 w-5 text-primary" />
-                  <CardTitle>Upload</CardTitle>
+                  <h2 className="text-xl font-semibold">Upload</h2>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                   <FileUploadForm
                     userId={userId}
                     onUploadSuccess={handleFileUploadSuccess}
                     currentFolder={currentFolder}
                   />
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
 
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="flex gap-3">
                   <FileText className="h-5 w-5 text-primary" />
-                  <CardTitle>Your Files</CardTitle>
+                  <h2 className="text-xl font-semibold">Your Files</h2>
                 </CardHeader>
-                <CardContent>
+                <CardBody>
                   <FileList
                     userId={userId}
                     refreshTrigger={refreshTrigger}
                     onFolderChange={handleFolderChange}
                   />
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
           </div>
-        </TabsContent>
+        </Tab>
 
-        <TabsContent value="profile">
+        <Tab
+          key="profile"
+          title={
+            <div className="flex items-center gap-3">
+              <User className="h-5 w-5" />
+              <span className="font-medium">Profile</span>
+            </div>
+          }
+        >
           <div className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile</CardTitle>
-                <CardDescription>Manage your profile information.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <UserProfile />
-              </CardContent>
-            </Card>
+            <UserProfile />
           </div>
-        </TabsContent>
+        </Tab>
       </Tabs>
     </>
   );

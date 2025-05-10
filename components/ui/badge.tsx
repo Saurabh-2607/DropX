@@ -1,46 +1,80 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils";
+import React from "react";
 
-import { cn } from "@/lib/utils"
+export type BadgeProps = {
+  children: React.ReactNode;
+  color?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "danger";
+  variant?: "solid" | "flat" | "outline";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+};
 
-const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
-
-function Badge({
+export const Badge = ({
+  children,
+  color = "default",
+  variant = "solid",
+  size = "md",
   className,
-  variant,
-  asChild = false,
   ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "span"
+}: BadgeProps & React.HTMLAttributes<HTMLSpanElement>) => {
+  const colorStyles = {
+    default: {
+      solid: "bg-default-500 text-white",
+      flat: "bg-default-100 text-default-800",
+      outline: "border border-default-300 text-default-800",
+    },
+    primary: {
+      solid: "bg-primary text-white",
+      flat: "bg-primary-100 text-primary-800",
+      outline: "border border-primary-300 text-primary-800",
+    },
+    secondary: {
+      solid: "bg-secondary text-white",
+      flat: "bg-secondary-100 text-secondary-800",
+      outline: "border border-secondary-300 text-secondary-800",
+    },
+    success: {
+      solid: "bg-success text-white",
+      flat: "bg-success-100 text-success-800",
+      outline: "border border-success-300 text-success-800",
+    },
+    warning: {
+      solid: "bg-warning text-white",
+      flat: "bg-warning-100 text-warning-800",
+      outline: "border border-warning-300 text-warning-800",
+    },
+    danger: {
+      solid: "bg-danger text-white",
+      flat: "bg-danger-100 text-danger-800",
+      outline: "border border-danger-300 text-danger-800",
+    },
+  };
+
+  const sizeStyles = {
+    sm: "text-xs px-1.5 py-0.5 rounded",
+    md: "text-xs px-2 py-1 rounded-md",
+    lg: "text-sm px-2.5 py-1 rounded-md",
+  };
 
   return (
-    <Comp
-      data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
+    <span
+      className={cn(
+        "inline-flex items-center justify-center font-medium",
+        colorStyles[color][variant],
+        sizeStyles[size],
+        className
+      )}
       {...props}
-    />
-  )
-}
+    >
+      {children}
+    </span>
+  );
+};
 
-export { Badge, badgeVariants }
+export default Badge;

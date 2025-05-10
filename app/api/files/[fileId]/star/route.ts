@@ -37,7 +37,7 @@ export async function PATCH(
     // Toggle the isStarred status
     const updatedFiles = await db
       .update(files)
-      .set({ isStared: !file.isStared })
+      .set({ isStarred: !file.isStarred })
       .where(and(eq(files.id, fileId), eq(files.userId, userId)))
       .returning();
 

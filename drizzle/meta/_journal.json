@@ -1,12 +1,12 @@
 {
-  "version": "7",
+  "version": "6",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1746791817926,
-      "tag": "0000_migrate.ts",
+      "version": "6",
+      "when": 1741681852961,
+      "tag": "0000_known_obadiah_stane",
       "breakpoints": true
     }
   ]

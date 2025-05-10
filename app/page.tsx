@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@heroui/button";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardBody } from "@heroui/card";
 import {
   CloudUpload,
   Shield,
@@ -37,19 +37,24 @@ export default function Home() {
                 <div className="flex flex-wrap gap-4 pt-4 justify-center lg:justify-start">
                   <SignedOut>
                     <Link href="/sign-up">
-                      <Button>
+                      <Button size="lg" variant="solid" color="primary">
                         Get Started
                       </Button>
                     </Link>
                     <Link href="/sign-in">
-                      <Button>
+                      <Button size="lg" variant="flat" color="primary">
                         Sign In
                       </Button>
                     </Link>
                   </SignedOut>
                   <SignedIn>
                     <Link href="/dashboard">
-                      <Button>
+                      <Button
+                        size="lg"
+                        variant="solid"
+                        color="primary"
+                        endContent={<ArrowRight className="h-4 w-4" />}
+                      >
                         Go to Dashboard
                       </Button>
                     </Link>
@@ -80,17 +85,17 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
               <Card className="border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-6 text-center">
+                <CardBody className="p-6 text-center">
                   <CloudUpload className="h-10 md:h-12 w-10 md:w-12 mx-auto mb-4 text-primary" />
                   <h3 className="text-lg md:text-xl font-semibold mb-2 text-default-900">
                     Quick Uploads
                   </h3>
                   <p className="text-default-600">Drag, drop, done.</p>
-                </CardContent>
+                </CardBody>
               </Card>
 
               <Card className="border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-6 text-center">
+                <CardBody className="p-6 text-center">
                   <Folder className="h-10 md:h-12 w-10 md:w-12 mx-auto mb-4 text-primary" />
                   <h3 className="text-lg md:text-xl font-semibold mb-2 text-default-900">
                     Smart Organization
@@ -98,11 +103,11 @@ export default function Home() {
                   <p className="text-default-600">
                     Keep it tidy, find it fast.
                   </p>
-                </CardContent>
+                </CardBody>
               </Card>
 
               <Card className="border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow sm:col-span-2 md:col-span-1 mx-auto sm:mx-0 max-w-md sm:max-w-full">
-                <CardContent className="p-6 text-center">
+                <CardBody className="p-6 text-center">
                   <Shield className="h-10 md:h-12 w-10 md:w-12 mx-auto mb-4 text-primary" />
                   <h3 className="text-lg md:text-xl font-semibold mb-2 text-default-900">
                     Locked Down
@@ -110,7 +115,7 @@ export default function Home() {
                   <p className="text-default-600">
                     Your images, your eyes only.
                   </p>
-                </CardContent>
+                </CardBody>
               </Card>
             </div>
           </div>
@@ -125,7 +130,12 @@ export default function Home() {
             <SignedOut>
               <div className="flex flex-wrap justify-center gap-4 mt-8">
                 <Link href="/sign-up">
-                  <Button>
+                  <Button
+                    size="lg"
+                    variant="solid"
+                    color="primary"
+                    endContent={<ArrowRight className="h-4 w-4" />}
+                  >
                     Let's Go
                   </Button>
                 </Link>
@@ -133,7 +143,12 @@ export default function Home() {
             </SignedOut>
             <SignedIn>
               <Link href="/dashboard">
-                <Button>
+                <Button
+                  size="lg"
+                  variant="solid"
+                  color="primary"
+                  endContent={<ArrowRight className="h-4 w-4" />}
+                >
                   Dashboard
                 </Button>
               </Link>

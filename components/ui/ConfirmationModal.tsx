@@ -1,14 +1,12 @@
 import React from "react";
 import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
+import { Button } from "@heroui/button";
 import { LucideIcon } from "lucide-react";
 
 interface ConfirmationModalProps {
@@ -20,7 +18,7 @@ interface ConfirmationModalProps {
   iconColor?: string;
   confirmText?: string;
   cancelText?: string;
-  confirmColor?: "default" | "destructive" | "secondary" | "outline";
+  confirmColor?: "primary" | "danger" | "warning" | "success" | "default";
   onConfirm: () => void;
   isDangerous?: boolean;
   warningMessage?: string;
@@ -32,28 +30,38 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   title,
   description,
   icon: Icon,
-  iconColor = "text-destructive",
+  iconColor = "text-danger",
   confirmText = "Confirm",
   cancelText = "Cancel",
-  confirmColor = "destructive",
+  confirmColor = "danger",
   onConfirm,
   isDangerous = false,
   warningMessage,
 }) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="flex flex-row items-center gap-2">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      backdrop="blur"
+      classNames={{
+        base: "border border-default-200 bg-default-50",
+        header: "border-b border-default-200",
+        footer: "border-t border-default-200",
+      }}
+    >
+      <ModalContent>
+        <ModalHeader className="flex gap-2 items-center">
           {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
+          <span>{title}</span>
+        </ModalHeader>
+        <ModalBody>
           {isDangerous && warningMessage && (
-            <div className="bg-red-50 text-red-700 p-4 rounded-md border border-red-200">
+            <div className="bg-danger-50 text-danger-700 p-4 rounded-lg mb-4">
               <div className="flex items-start gap-3">
                 {Icon && (
-                  <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${iconColor}`} />
+                  <Icon
+                    className={`h-5 w-5 mt-0.5 flex-shrink-0 ${iconColor}`}
+                  />
                 )}
                 <div>
                   <p className="font-medium">This action cannot be undone</p>
@@ -62,26 +70,29 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               </div>
             </div>
           )}
-          <DialogDescription>{description}</DialogDescription>
-        </div>
-
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <p>{description}</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="flat"
+            color="default"
+            onClick={() => onOpenChange(false)}
+          >
             {cancelText}
           </Button>
           <Button
-            variant={confirmColor}
+            color={confirmColor}
             onClick={() => {
               onConfirm();
               onOpenChange(false);
             }}
+            startContent={Icon && <Icon className="h-4 w-4" />}
           >
-            {Icon && <Icon className="mr-2 h-4 w-4" />}
             {confirmText}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

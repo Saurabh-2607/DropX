@@ -1,7 +1,7 @@
 {
-  "id": "f8ee3ed6-3436-45f2-896c-6afcef20838d",
+  "id": "35be4bc1-0c32-4899-a9e0-c0aa2ae884d8",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
+  "version": "6",
   "dialect": "postgresql",
   "tables": {
     "public.files": {
@@ -43,7 +43,7 @@
           "name": "file_url",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "thumbnail_url": {
           "name": "thumbnail_url",
@@ -70,8 +70,8 @@
           "notNull": true,
           "default": false
         },
-        "is_stared": {
-          "name": "is_stared",
+        "is_starred": {
+          "name": "is_starred",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -102,18 +102,11 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "uniqueConstraints": {}
     }
   },
   "enums": {},
   "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},
