@@ -1,7 +1,7 @@
 "use client";
 
 import { RefreshCw, Trash } from "lucide-react";
-import { Button } from "@heroui/button";
+import { Button } from "@/components/ui/button";
 
 interface FileActionButtonsProps {
   activeTab: string;
@@ -29,22 +29,11 @@ export default function FileActionButtons({
         {activeTab === "trash" && "Trash"}
       </h2>
       <div className="flex gap-2 sm:gap-3 self-end sm:self-auto">
-        <Button
-          variant="flat"
-          size="sm"
-          onClick={onRefresh}
-          startContent={<RefreshCw className="h-4 w-4" />}
-        >
+        <Button>
           Refresh
         </Button>
         {activeTab === "trash" && trashCount > 0 && (
-          <Button
-            color="danger"
-            variant="flat"
-            size="sm"
-            onClick={onEmptyTrash}
-            startContent={<Trash className="h-4 w-4" />}
-          >
+          <Button>
             Empty Trash
           </Button>
         )}

@@ -1,12 +1,18 @@
 "use client";
 
 import { useUser, useClerk } from "@clerk/nextjs";
-import { Button } from "@heroui/button";
-import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { Spinner } from "@heroui/spinner";
-import { Avatar } from "@heroui/avatar";
-import { Divider } from "@heroui/divider";
-import Badge from "@/components/ui/Badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { Mail, User, LogOut, Shield, ArrowRight } from "lucide-react";
 
@@ -18,37 +24,36 @@ export default function UserProfile() {
   if (!isLoaded) {
     return (
       <div className="flex flex-col justify-center items-center p-12">
-        <Spinner size="lg" color="primary" />
-        <p className="mt-4 text-default-600">Loading your profile...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="mt-4 text-muted-foreground">Loading your profile...</p>
       </div>
     );
   }
 
   if (!isSignedIn) {
     return (
-      <Card className="max-w-md mx-auto border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
-        <CardHeader className="flex gap-3">
+      <Card className="max-w-md mx-auto shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader className="flex flex-row items-center gap-3">
           <User className="h-6 w-6 text-primary" />
-          <h2 className="text-xl font-semibold">User Profile</h2>
+          <CardTitle>User Profile</CardTitle>
         </CardHeader>
-        <Divider />
+        <Separator />
         <CardContent className="text-center py-10">
           <div className="mb-6">
-            <Avatar name="Guest" size="lg" className="mx-auto mb-4" />
+            <Avatar className="h-20 w-20 mx-auto mb-4">
+              <AvatarFallback>GU</AvatarFallback>
+            </Avatar>
             <p className="text-lg font-medium">Not Signed In</p>
-            <p className="text-default-500 mt-2">
+            <p className="text-muted-foreground mt-2">
               Please sign in to access your profile
             </p>
           </div>
-          <Button
-            variant="solid"
-            color="primary"
-            size="lg"
+          <Button 
             onClick={() => router.push("/sign-in")}
             className="px-8"
-            endContent={<ArrowRight className="h-4 w-4" />}
           >
             Sign In
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>
       </Card>
@@ -72,48 +77,39 @@ export default function UserProfile() {
   };
 
   return (
-    <Card className="max-w-md mx-auto border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="flex gap-3">
+    <Card className="max-w-md mx-auto shadow-sm hover:shadow-md transition-shadow">
+      <CardHeader className="flex flex-row items-center gap-3">
         <User className="h-6 w-6 text-primary" />
-        <h2 className="text-xl font-semibold">User Profile</h2>
+        <CardTitle>User Profile</CardTitle>
       </CardHeader>
-      <Divider />
+      <Separator />
       <CardContent className="py-6">
         <div className="flex flex-col items-center text-center mb-6">
-          {user.imageUrl ? (
-            <Avatar
-              src={user.imageUrl}
-              alt={fullName}
-              size="lg"
-              className="mb-4 h-24 w-24"
-            />
-          ) : (
-            <Avatar
-              name={initials}
-              size="lg"
-              className="mb-4 h-24 w-24 text-lg"
-            />
-          )}
+          <Avatar className="h-24 w-24 mb-4">
+            {user.imageUrl ? (
+              <AvatarImage src={user.imageUrl} alt={fullName} />
+            ) : (
+              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+            )}
+          </Avatar>
           <h3 className="text-xl font-semibold">{fullName}</h3>
           {user.emailAddresses && user.emailAddresses.length > 0 && (
-            <div className="flex items-center gap-2 mt-1 text-default-500">
+            <div className="flex items-center gap-2 mt-1 text-muted-foreground">
               <Mail className="h-4 w-4" />
               <span>{email}</span>
             </div>
           )}
           {userRole && (
-            <Badge
-              color="primary"
-              variant="flat"
+            <Badge 
               className="mt-3"
-              aria-label={`User role: ${userRole}`}
+              variant="secondary"
             >
               {userRole}
             </Badge>
           )}
         </div>
 
-        <Divider className="my-4" />
+        <Separator className="my-4" />
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -121,11 +117,7 @@ export default function UserProfile() {
               <Shield className="h-5 w-5 text-primary/70" />
               <span className="font-medium">Account Status</span>
             </div>
-            <Badge
-              color="success"
-              variant="flat"
-              aria-label="Account status: Active"
-            >
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               Active
             </Badge>
           </div>
@@ -135,18 +127,13 @@ export default function UserProfile() {
               <Mail className="h-5 w-5 text-primary/70" />
               <span className="font-medium">Email Verification</span>
             </div>
-            <Badge
-              color={
+            <Badge 
+              variant="outline" 
+              className={
                 user.emailAddresses?.[0]?.verification?.status === "verified"
-                  ? "success"
-                  : "warning"
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
               }
-              variant="flat"
-              aria-label={`Email verification status: ${
-                user.emailAddresses?.[0]?.verification?.status === "verified"
-                  ? "Verified"
-                  : "Pending"
-              }`}
             >
               {user.emailAddresses?.[0]?.verification?.status === "verified"
                 ? "Verified"
@@ -155,14 +142,13 @@ export default function UserProfile() {
           </div>
         </div>
       </CardContent>
-      <Divider />
+      <Separator />
       <CardFooter className="flex justify-between">
-        <Button
-          variant="flat"
-          color="danger"
-          startContent={<LogOut className="h-4 w-4" />}
+        <Button 
+          variant="destructive" 
           onClick={handleSignOut}
         >
+          <LogOut className="mr-2 h-4 w-4" />
           Sign Out
         </Button>
       </CardFooter>
