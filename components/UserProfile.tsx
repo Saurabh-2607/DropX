@@ -6,7 +6,7 @@ import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Avatar } from "@heroui/avatar";
 import { Divider } from "@heroui/divider";
-import Badge from "@/components/ui/Badge";
+import {Badge} from "@heroui/badge";
 import { useRouter } from "next/navigation";
 import { Mail, User, LogOut, Shield, ArrowRight } from "lucide-react";
 
