@@ -1,8 +1,25 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "./providers";
-import "../styles/globals.css";
-import { fontSans } from "@/config/fonts";
+import "./globals.css";
+import { Instrument_Serif, Geist, Geist_Mono } from "next/font/google";
+
+const fontSerif = Instrument_Serif({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400"],
+  style: ["normal", "italic"],
+});
+
+const fontSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const fontMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: "DropX",
@@ -16,9 +33,9 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
+      <html lang="en" className="light overflow-x-hidden">
         <body
-          className={`${fontSans.className} antialiased bg-background text-foreground`}
+          className={`${fontSans.variable} ${fontMono.variable} ${fontSerif.variable} ${fontSans.className} antialiased bg-[#fafaf9] text-[#292524] overflow-x-hidden`}
         >
           <Providers>{children}</Providers>
         </body>

@@ -7,12 +7,9 @@ import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
-import { Divider } from "@heroui/divider";
-import { Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { signInSchema } from "@/schemas/signInSchema";
+import { Button } from "@/components/ui/Button";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -63,105 +60,132 @@ export default function SignInForm() {
     }
   };
 
+
+
   return (
-    <Card className="w-full max-w-md border border-default-200 bg-default-50 shadow-xl">
-      <CardHeader className="flex flex-col gap-1 items-center pb-2">
-        <h1 className="text-2xl font-bold text-default-900">Welcome Back</h1>
-        <p className="text-default-500 text-center">
-          Sign in to access your secure cloud storage
-        </p>
-      </CardHeader>
+    <div className="w-full max-w-[400px] flex flex-col items-center">
+      {/* Centered Flower/Loop Logo */}
+      <div className="mb-6 text-[#3C3833]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none">
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14 13-2-3-2 3" vectorEffect="non-scaling-stroke"></path>
+          <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 22s-3-6-6-9" vectorEffect="non-scaling-stroke"></path>
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+        </svg>
+      </div>
 
-      <Divider />
-
-      <CardBody className="py-6">
-        {authError && (
-          <div className="bg-danger-50 text-danger-700 p-4 rounded-lg mb-6 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
-            <p>{authError}</p>
+      {/* Stacked Cards Container */}
+      <div className="w-full flex flex-col items-stretch">
+        
+        {/* Top Box: Header + Google Button */}
+        <div className="relative p-6 flex flex-col gap-6 rounded-t-2xl border-t border-x border-stone-200 bg-stone-100 z-10 w-full">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-stone-700 font-normal text-2xl font-cooper leading-[120%]">
+              Login
+            </h3>
+            <p className="text-stone-500 font-normal text-sm">
+              Don't have an account?{" "}
+              <Link href="/sign-up" className="font-semibold underline hover:text-indigo-600">
+                Sign up
+              </Link>
+            </p>
           </div>
-        )}
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <label
-              htmlFor="identifier"
-              className="text-sm font-medium text-default-900"
-            >
-              Email
-            </label>
-            <Input
-              id="identifier"
-              type="email"
-              placeholder="your.email@example.com"
-              startContent={<Mail className="h-4 w-4 text-default-500" />}
-              isInvalid={!!errors.identifier}
-              errorMessage={errors.identifier?.message}
-              {...register("identifier")}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-default-900"
-              >
-                Password
-              </label>
+        {/* Bottom Box: Credentials Form */}
+        <div className="relative z-0 flex flex-col items-stretch gap-6 pt-10 pb-6 px-6 w-full -mt-4 border-b border-x border-stone-200 bg-white rounded-b-2xl">
+          {authError && (
+            <div className="bg-red-50 border border-red-100 text-red-700 p-3 rounded-lg flex items-center gap-2 text-xs animate-fade-in">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p>{authError}</p>
             </div>
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              startContent={<Lock className="h-4 w-4 text-default-500" />}
-              endContent={
-                <Button
-                  isIconOnly
-                  variant="light"
-                  size="sm"
-                  onClick={() => setShowPassword(!showPassword)}
-                  type="button"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-default-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-default-500" />
-                  )}
-                </Button>
-              }
-              isInvalid={!!errors.password}
-              errorMessage={errors.password?.message}
-              {...register("password")}
-              className="w-full"
-            />
-          </div>
+          )}
 
-          <Button
-            type="submit"
-            color="primary"
-            className="w-full"
-            isLoading={isSubmitting}
-          >
-            {isSubmitting ? "Signing in..." : "Sign In"}
-          </Button>
-        </form>
-      </CardBody>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
+              
+              {/* Email field */}
+              <div className="flex flex-col gap-1 group">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="identifier" className="text-sm font-medium text-stone-800">
+                    Email<span className="text-rose-500"> *</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <input
+                    id="identifier"
+                    type="email"
+                    required
+                    {...register("identifier")}
+                    className={`w-full max-h-9 p-2 pl-3 outline-none text-sm rounded-lg border transition-all duration-100 ${
+                      errors.identifier ? "border-red-400 focus:border-red-400" : "border-stone-200 focus-within:border-stone-300"
+                    } bg-white text-stone-800 hover:border-stone-300`}
+                  />
+                </div>
+                {errors.identifier && (
+                  <p className="text-xs text-red-500 mt-0.5">{errors.identifier.message}</p>
+                )}
+              </div>
 
-      <Divider />
+              {/* Password field */}
+              <div className="flex flex-col gap-1 group">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="password" className="text-sm font-medium text-stone-800">
+                    Password<span className="text-rose-500"> *</span>
+                  </label>
+                  <p className="text-stone-500 font-normal text-[10px]">
+                    <Link href="/dashboard" className="hover:underline text-stone-500 hover:text-stone-800">
+                      Forgot password?
+                    </Link>
+                  </p>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    {...register("password")}
+                    className={`w-full max-h-9 p-2 pl-3 pr-10 outline-none text-sm rounded-lg border transition-all duration-100 ${
+                      errors.password ? "border-red-400 focus:border-red-400" : "border-stone-200 focus-within:border-stone-300"
+                    } bg-white text-stone-800 hover:border-stone-300`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-0 p-2 size-9 text-stone-500 hover:text-stone-950 flex items-center justify-center"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-0.5">{errors.password.message}</p>
+                )}
+              </div>
 
-      <CardFooter className="flex justify-center py-4">
-        <p className="text-sm text-default-600">
-          Don't have an account?{" "}
-          <Link
-            href="/sign-up"
-            className="text-primary hover:underline font-medium"
-          >
-            Sign up
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="charcoal"
+              size="form"
+              isLoading={isSubmitting}
+              className="w-full h-10 border-2 border-stone-800"
+            >
+              Login
+            </Button>
+          </form>
+        </div>
+
+      </div>
+
+      {/* Footer Text */}
+      <p className="text-stone-500 dark:text-stone-600 font-normal text-xs px-4 md:px-0 mt-6 text-center">
+        By signing in, you agree to DropX{" "}
+        <a href="/terms" className="underline font-semibold hover:text-indigo-600">Terms</a>{" "}
+        and{" "}
+        <a href="/privacy" className="underline font-semibold hover:text-indigo-600">Privacy Policy</a>
+      </p>
+    </div>
   );
 }

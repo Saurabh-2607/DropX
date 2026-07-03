@@ -1,9 +1,9 @@
 "use client";
 
-import { useClerk, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useClerk, useAuth } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { CloudUpload, ChevronDown, User, Menu, X } from "lucide-react";
+import { User, Menu, X } from "lucide-react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -11,8 +11,8 @@ import {
   DropdownItem,
 } from "@heroui/dropdown";
 import { Avatar } from "@heroui/avatar";
-import { Button } from "@heroui/button";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 interface SerializedUser {
   id: string;
@@ -29,72 +29,9 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const { signOut } = useClerk();
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  // Check if we're on the dashboard page
-  const isOnDashboard =
-    pathname === "/dashboard" || pathname?.startsWith("/dashboard/");
-
-  // Handle scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Close mobile menu when window is resized to desktop size
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Handle body scroll lock when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
-
-  // Handle clicks outside the mobile menu
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isMobileMenuOpen &&
-        mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target as Node)
-      ) {
-        // Check if the click is not on the menu button (which has its own handler)
-        const target = event.target as HTMLElement;
-        if (!target.closest('[data-menu-button="true"]')) {
-          setIsMobileMenuOpen(false);
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMobileMenuOpen]);
 
   const handleSignOut = () => {
     signOut(() => {
@@ -102,7 +39,6 @@ export default function Navbar({ user }: NavbarProps) {
     });
   };
 
-  // Process user data with defaults if not provided
   const userDetails = {
     fullName: user
       ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
@@ -123,214 +59,124 @@ export default function Navbar({ user }: NavbarProps) {
     email: user?.emailAddress || "",
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   return (
-    <header
-      className={`bg-default-50 border-b border-default-200 sticky top-0 z-50 transition-shadow ${isScrolled ? "shadow-sm" : ""}`}
-    >
-      <div className="container mx-auto py-3 md:py-4 px-4 md:px-6">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 z-10">
-            <CloudUpload className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold">DropX</h1>
+    <header className="sticky top-0 w-full backdrop-blur-lg z-50 flex justify-center bg-stone-50/80 border-b border-stone-200/50">
+      <div className="max-w-6xl w-full">
+        <div className="lg:grid gap-4 flex items-center lg:grid-cols-3 h-14 w-full py-1 px-4 lg:px-6">
+          
+          {/* Left: Brand Logo & Icon */}
+          <Link href="/" className="flex items-center gap-2 group w-fit hover:opacity-70">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-stone-800">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 13-2-3-2 3" vector-effect="non-scaling-stroke"></path>
+              <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 22s-3-6-6-9" vector-effect="non-scaling-stroke"></path>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+            </svg>
+            <span className="font-mono text-sm font-semibold tracking-[0.08em] text-stone-800 uppercase">
+              DROPX
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex gap-4 items-center">
-            {/* Show these buttons when user is signed out */}
-            <SignedOut>
-              <Link href="/sign-in">
-                <Button variant="flat" color="primary">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button variant="solid" color="primary">
-                  Sign Up
-                </Button>
-              </Link>
-            </SignedOut>
+          {/* Center Links (hidden on mobile) */}
+          <div className="hidden lg:flex items-center justify-center gap-2 font-mono">
+            <Dropdown>
+              <DropdownTrigger>
+                <button className="flex font-mono justify-between px-3 py-1 gap-1 rounded-lg items-center uppercase text-sm font-semibold select-none cursor-pointer text-stone-800 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none">
+                  Solutions{" "}
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                    </svg>
+                  </span>
+                </button>
+              </DropdownTrigger>
+              <DropdownMenu 
+                aria-label="Solutions dropdown"
+                onAction={() => router.push("/dashboard")}
+              >
+                <DropdownItem key="storage">Media Storage</DropdownItem>
+                <DropdownItem key="sharing">Secure Sharing</DropdownItem>
+                <DropdownItem key="filters">Quick Filters</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
 
-            {/* Show these when user is signed in */}
-            <SignedIn>
+            <a
+              href="#features"
+              className="flex font-mono justify-between px-3 py-1 gap-1 items-center uppercase text-sm font-semibold select-none cursor-pointer rounded-lg hover:bg-indigo-50 transition-colors duration-200 text-stone-800 hover:text-indigo-600"
+            >
+              Features
+            </a>
+            <Link
+              href="/dashboard"
+              className="flex font-mono justify-between px-3 py-1 gap-1 items-center uppercase text-sm font-semibold select-none cursor-pointer rounded-lg hover:bg-indigo-50 transition-colors duration-200 text-stone-800 hover:text-indigo-600"
+            >
+              Workspace
+            </Link>
+          </div>
+
+          {/* Right Action buttons */}
+          <div className="flex gap-2 lg:gap-4 justify-end items-center flex-1 lg:w-full">
+            {(!isLoaded || !isSignedIn) ? (
+              <>
+                <Button variant="secondary" href="/dashboard">Log in</Button>
+                <Button variant="primary" href="/dashboard">Sign up</Button>
+              </>
+            ) : (
               <div className="flex items-center gap-4">
-                {!isOnDashboard && (
-                  <Link href="/dashboard">
-                    <Button variant="flat" color="primary">
-                      Dashboard
-                    </Button>
-                  </Link>
-                )}
+                <Button variant="primary" href="/dashboard">Dashboard</Button>
                 <Dropdown>
                   <DropdownTrigger>
-                    <Button
-                      variant="flat"
-                      className="p-0 bg-transparent min-w-0"
-                      endContent={<ChevronDown className="h-4 w-4 ml-2" />}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Avatar
-                          name={userDetails.initials}
-                          size="sm"
-                          src={user?.imageUrl || undefined}
-                          className="h-8 w-8 flex-shrink-0"
-                          fallback={<User className="h-4 w-4" />}
-                        />
-                        <span className="text-default-600 hidden sm:inline">
-                          {userDetails.displayName}
-                        </span>
-                      </div>
-                    </Button>
+                    <button className="focus:outline-none cursor-pointer flex items-center gap-1">
+                      <Avatar
+                        name={userDetails.initials}
+                        size="sm"
+                        src={user?.imageUrl || undefined}
+                        className="h-8 w-8 border border-stone-200"
+                        fallback={<User className="h-4 w-4" />}
+                      />
+                    </button>
                   </DropdownTrigger>
-                  <DropdownMenu aria-label="User actions">
-                    <DropdownItem
-                      key="profile"
-                      description={userDetails.email || "View your profile"}
-                      onClick={() => router.push("/dashboard?tab=profile")}
-                    >
+                  <DropdownMenu aria-label="User menu">
+                    <DropdownItem key="profile" onClick={() => router.push("/dashboard?tab=profile")}>
                       Profile
                     </DropdownItem>
-                    <DropdownItem
-                      key="files"
-                      description="Manage your files"
-                      onClick={() => router.push("/dashboard")}
-                    >
-                      My Files
-                    </DropdownItem>
-                    <DropdownItem
-                      key="logout"
-                      description="Sign out of your account"
-                      className="text-danger"
-                      color="danger"
-                      onClick={handleSignOut}
-                    >
-                      Sign Out
+                    <DropdownItem key="signout" color="danger" className="text-danger" onClick={handleSignOut}>
+                      Sign out
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </div>
-            </SignedIn>
-          </div>
+            )}
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
-            <SignedIn>
-              <Avatar
-                name={userDetails.initials}
-                size="sm"
-                src={user?.imageUrl || undefined}
-                className="h-8 w-8 flex-shrink-0"
-                fallback={<User className="h-4 w-4" />}
-              />
-            </SignedIn>
+            {/* Mobile menu trigger */}
             <button
-              className="z-50 p-2"
-              onClick={toggleMobileMenu}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-              data-menu-button="true"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-1 text-stone-600 hover:text-stone-900 focus:outline-none"
             >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6 text-default-700" />
-              ) : (
-                <Menu className="h-6 w-6 text-default-700" />
-              )}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
-
-          {/* Mobile Menu Overlay */}
-          {isMobileMenuOpen && (
-            <div
-              className="fixed inset-0 bg-black/20 z-40 md:hidden"
-              onClick={() => setIsMobileMenuOpen(false)}
-              aria-hidden="true"
-            />
-          )}
-
-          {/* Mobile Menu */}
-          <div
-            ref={mobileMenuRef}
-            className={`fixed top-0 right-0 bottom-0 w-4/5 max-w-sm bg-default-50 z-40 flex flex-col pt-20 px-6 shadow-xl transition-transform duration-300 ease-in-out ${
-              isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-            } md:hidden`}
-          >
-            <SignedOut>
-              <div className="flex flex-col gap-4 items-center">
-                <Link
-                  href="/sign-in"
-                  className="w-full"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Button variant="flat" color="primary" className="w-full">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link
-                  href="/sign-up"
-                  className="w-full"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Button variant="solid" color="primary" className="w-full">
-                    Sign Up
-                  </Button>
-                </Link>
-              </div>
-            </SignedOut>
-
-            <SignedIn>
-              <div className="flex flex-col gap-6">
-                {/* User info */}
-                <div className="flex items-center gap-3 py-4 border-b border-default-200">
-                  <Avatar
-                    name={userDetails.initials}
-                    size="md"
-                    src={user?.imageUrl || undefined}
-                    className="h-10 w-10 flex-shrink-0"
-                    fallback={<User className="h-5 w-5" />}
-                  />
-                  <div>
-                    <p className="font-medium">{userDetails.displayName}</p>
-                    <p className="text-sm text-default-500">
-                      {userDetails.email}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Navigation links */}
-                <div className="flex flex-col gap-4">
-                  {!isOnDashboard && (
-                    <Link
-                      href="/dashboard"
-                      className="py-2 px-3 hover:bg-default-100 rounded-md transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                  )}
-                  <Link
-                    href="/dashboard?tab=profile"
-                    className="py-2 px-3 hover:bg-default-100 rounded-md transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Profile
-                  </Link>
-                  <button
-                    className="py-2 px-3 text-left text-danger hover:bg-danger-50 rounded-md transition-colors mt-4"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleSignOut();
-                    }}
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            </SignedIn>
-          </div>
         </div>
+
+        {/* Mobile menu drawer */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden w-full border-t border-stone-200 bg-stone-50 py-4 px-6 flex flex-col gap-4 font-mono">
+            <Link
+              href="#features"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="uppercase text-sm font-semibold text-stone-800"
+            >
+              Features
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="uppercase text-sm font-semibold text-stone-800"
+            >
+              Workspace
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

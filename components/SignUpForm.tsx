@@ -7,19 +7,9 @@ import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
-import { Divider } from "@heroui/divider";
-import {
-  Mail,
-  Lock,
-  AlertCircle,
-  CheckCircle,
-  Eye,
-  EyeOff,
-} from "lucide-react";
-import { signUpSchema } from "@/schemas/signUpSchema";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { signUpSchema } from "@/schemas/signUpSchemas";
+import { Button } from "@/components/ui/Button";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -32,20 +22,28 @@ export default function SignUpForm() {
     null
   );
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       email: "",
       password: "",
-      passwordConfirmation: "",
+      passwrordConfirmation: "",
     },
   });
+
+  const passwordValue = watch("password") || "";
+
+  // Password Validation Checks
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(passwordValue);
+  const hasUpperCase = /[A-Z]/.test(passwordValue);
+  const hasNumber = /[0-9]/.test(passwordValue);
+  const isMinLength = passwordValue.length >= 8;
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     if (!isLoaded) return;
@@ -106,59 +104,67 @@ export default function SignUpForm() {
     }
   };
 
+
+
   if (verifying) {
     return (
-      <Card className="w-full max-w-md border border-default-200 bg-default-50 shadow-xl">
-        <CardHeader className="flex flex-col gap-1 items-center pb-2">
-          <h1 className="text-2xl font-bold text-default-900">
-            Verify Your Email
-          </h1>
-          <p className="text-default-500 text-center">
-            We've sent a verification code to your email
-          </p>
-        </CardHeader>
+      <div className="w-full max-w-[400px] flex flex-col items-center">
+        {/* Centered Flower/Loop Logo */}
+        <div className="mb-6 text-[#3C3833]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14 13-2-3-2 3" vectorEffect="non-scaling-stroke"></path>
+            <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 22s-3-6-6-9" vectorEffect="non-scaling-stroke"></path>
+            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+          </svg>
+        </div>
 
-        <Divider />
+        <div className="w-full bg-stone-100 border border-stone-200 rounded-2xl p-6 shadow-sm">
+          <div className="mb-6">
+            <h1 className="font-cooper text-[28px] font-normal leading-tight text-[#3C3833]">
+              Verify Email
+            </h1>
+            <p className="text-xs font-sans text-[#8C8880] mt-1">
+              We've sent a verification code to your email address.
+            </p>
+          </div>
 
-        <CardBody className="py-6">
           {verificationError && (
-            <div className="bg-danger-50 text-danger-700 p-4 rounded-lg mb-6 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <div className="bg-red-50 border border-red-100 text-red-700 p-3 rounded-lg mb-4 flex items-center gap-2 text-xs">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <p>{verificationError}</p>
             </div>
           )}
 
-          <form onSubmit={handleVerificationSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label
-                htmlFor="verificationCode"
-                className="text-sm font-medium text-default-900"
-              >
-                Verification Code
+          <form onSubmit={handleVerificationSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <label htmlFor="verificationCode" className="text-[10px] font-mono font-bold text-[#8C8880] uppercase tracking-wider block">
+                Verification Code <span className="text-red-500">*</span>
               </label>
-              <Input
+              <input
                 id="verificationCode"
                 type="text"
-                placeholder="Enter the 6-digit code"
+                placeholder="Enter 6-digit code"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
-                className="w-full"
+                className="w-full h-10 px-3 bg-white border border-[#E2DFD8] rounded-lg text-sm text-[#3C3833] focus:outline-none focus:border-[#3C3833] transition-colors"
                 autoFocus
               />
             </div>
 
             <Button
               type="submit"
-              color="primary"
-              className="w-full"
+              variant="primary"
+              size="form"
               isLoading={isSubmitting}
+              className="w-full h-10"
             >
-              {isSubmitting ? "Verifying..." : "Verify Email"}
+              VERIFY EMAIL
             </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-default-500">
+            <p className="text-xs text-stone-500">
               Didn't receive a code?{" "}
               <button
                 onClick={async () => {
@@ -168,160 +174,208 @@ export default function SignUpForm() {
                     });
                   }
                 }}
-                className="text-primary hover:underline font-medium"
+                className="underline text-[#3C3833] font-medium"
               >
                 Resend code
               </button>
             </p>
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md border border-default-200 bg-default-50 shadow-xl">
-      <CardHeader className="flex flex-col gap-1 items-center pb-2">
-        <h1 className="text-2xl font-bold text-default-900">
-          Create Your Account
-        </h1>
-        <p className="text-default-500 text-center">
-          Sign up to start managing your images securely
-        </p>
-      </CardHeader>
+    <div className="w-full max-w-[400px] flex flex-col items-center">
+      {/* Centered Flower/Loop Logo */}
+      <div className="mb-6 text-[#3C3833]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none">
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14 13-2-3-2 3" vectorEffect="non-scaling-stroke"></path>
+          <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 22s-3-6-6-9" vectorEffect="non-scaling-stroke"></path>
+          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+        </svg>
+      </div>
 
-      <Divider />
-
-      <CardBody className="py-6">
-        {authError && (
-          <div className="bg-danger-50 text-danger-700 p-4 rounded-lg mb-6 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
-            <p>{authError}</p>
+      {/* Stacked Cards Container */}
+      <div className="w-full flex flex-col items-stretch">
+        
+        {/* Top Box: Header + Google Button */}
+        <div className="relative p-6 flex flex-col gap-6 rounded-t-2xl border-t border-x border-stone-200 bg-stone-100 z-10 w-full">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-stone-700 font-normal text-2xl font-cooper leading-[120%]">
+              Create account
+            </h3>
+            <p className="text-stone-500 font-normal text-sm">
+              Already have an account?{" "}
+              <Link href="/sign-in" className="font-semibold underline hover:text-indigo-600">
+                Login.
+              </Link>
+            </p>
           </div>
-        )}
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-default-900"
-            >
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your.email@example.com"
-              startContent={<Mail className="h-4 w-4 text-default-500" />}
-              isInvalid={!!errors.email}
-              errorMessage={errors.email?.message}
-              {...register("email")}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-default-900"
-            >
-              Password
-            </label>
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              startContent={<Lock className="h-4 w-4 text-default-500" />}
-              endContent={
-                <Button
-                  isIconOnly
-                  variant="light"
-                  size="sm"
-                  onClick={() => setShowPassword(!showPassword)}
-                  type="button"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-default-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-default-500" />
-                  )}
-                </Button>
-              }
-              isInvalid={!!errors.password}
-              errorMessage={errors.password?.message}
-              {...register("password")}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="passwordConfirmation"
-              className="text-sm font-medium text-default-900"
-            >
-              Confirm Password
-            </label>
-            <Input
-              id="passwordConfirmation"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="••••••••"
-              startContent={<Lock className="h-4 w-4 text-default-500" />}
-              endContent={
-                <Button
-                  isIconOnly
-                  variant="light"
-                  size="sm"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  type="button"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-default-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-default-500" />
-                  )}
-                </Button>
-              }
-              isInvalid={!!errors.passwordConfirmation}
-              errorMessage={errors.passwordConfirmation?.message}
-              {...register("passwordConfirmation")}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-start gap-2">
-              <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
-              <p className="text-sm text-default-600">
-                By signing up, you agree to our Terms of Service and Privacy
-                Policy
-              </p>
+        {/* Bottom Box: Credentials Form */}
+        <div className="relative z-0 flex flex-col items-stretch gap-6 pt-10 pb-6 px-6 w-full -mt-4 border-b border-x border-stone-200 bg-white rounded-b-2xl">
+          {authError && (
+            <div className="bg-red-50 border border-red-100 text-red-700 p-3 rounded-lg flex items-center gap-2 text-xs">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p>{authError}</p>
             </div>
-          </div>
+          )}
 
-          <Button
-            type="submit"
-            color="primary"
-            className="w-full"
-            isLoading={isSubmitting}
-          >
-            {isSubmitting ? "Creating account..." : "Create Account"}
-          </Button>
-        </form>
-      </CardBody>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
+              
+              {/* Email field */}
+              <div className="flex flex-col gap-1 group">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="email" className="text-sm font-medium text-stone-800">
+                    Email<span className="text-rose-500"> *</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    {...register("email")}
+                    className={`w-full max-h-9 p-2 pl-3 outline-none text-sm rounded-lg border transition-all duration-100 ${
+                      errors.email ? "border-red-400 focus:border-red-400" : "border-stone-200 focus-within:border-stone-300"
+                    } bg-white text-stone-800 hover:border-stone-300`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-0.5">{errors.email.message}</p>
+                )}
+              </div>
 
-      <Divider />
+              {/* Password field */}
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1 group">
+                  <div className="flex justify-between items-center">
+                    <label htmlFor="password" className="text-sm font-medium text-stone-800">
+                      Password<span className="text-rose-500"> *</span>
+                    </label>
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      {...register("password")}
+                      className={`w-full max-h-9 p-2 pl-3 pr-10 outline-none text-sm rounded-lg border transition-all duration-100 ${
+                        errors.password ? "border-red-400 focus:border-red-400" : "border-stone-200 focus-within:border-stone-300"
+                      } bg-white text-stone-800 hover:border-stone-300`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-0 p-2 size-9 text-stone-500 hover:text-stone-950 flex items-center justify-center"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-0.5">{errors.password.message}</p>
+                  )}
+                </div>
 
-      <CardFooter className="flex justify-center py-4">
-        <p className="text-sm text-default-600">
-          Already have an account?{" "}
-          <Link
-            href="/sign-in"
-            className="text-primary hover:underline font-medium"
-          >
-            Sign in
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+                {/* Password Checker List */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex justify-between items-center">
+                    <p className={`font-normal text-xs leading-4 ${hasSpecialChar ? "text-green-600 font-semibold" : "text-stone-500"}`}>
+                      At least 1 special character
+                    </p>
+                    <span className={hasSpecialChar ? "text-green-600" : "text-stone-300"}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.33337 9.66675C3.33337 9.66675 4.33337 9.66675 5.66671 12.0001C5.66671 12.0001 9.37257 5.88897 12.6667 4.66675" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
+                      </svg>
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <p className={`font-normal text-xs leading-4 ${hasUpperCase ? "text-green-600 font-semibold" : "text-stone-500"}`}>
+                      At least 1 uppercase letter
+                    </p>
+                    <span className={hasUpperCase ? "text-green-600" : "text-stone-300"}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.33337 9.66675C3.33337 9.66675 4.33337 9.66675 5.66671 12.0001C5.66671 12.0001 9.37257 5.88897 12.6667 4.66675" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
+                      </svg>
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <p className={`font-normal text-xs leading-4 ${hasNumber ? "text-green-600 font-semibold" : "text-stone-500"}`}>
+                      At least 1 number
+                    </p>
+                    <span className={hasNumber ? "text-green-600" : "text-stone-300"}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.33337 9.66675C3.33337 9.66675 4.33337 9.66675 5.66671 12.0001C5.66671 12.0001 9.37257 5.88897 12.6667 4.66675" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
+                      </svg>
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <p className={`font-normal text-xs leading-4 ${isMinLength ? "text-green-600 font-semibold" : "text-stone-500"}`}>
+                      Min 8 characters
+                    </p>
+                    <span className={isMinLength ? "text-green-600" : "text-stone-300"}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.33337 9.66675C3.33337 9.66675 4.33337 9.66675 5.66671 12.0001C5.66671 12.0001 9.37257 5.88897 12.6667 4.66675" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Confirm Password field */}
+              <div className="flex flex-col gap-1 group">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="passwrordConfirmation" className="text-sm font-medium text-stone-800">
+                    Confirm Password<span className="text-rose-500"> *</span>
+                  </label>
+                </div>
+                <div className="relative">
+                  <input
+                    id="passwrordConfirmation"
+                    type="password"
+                    required
+                    {...register("passwrordConfirmation")}
+                    className={`w-full max-h-9 p-2 pl-3 outline-none text-sm rounded-lg border transition-all duration-100 ${
+                      errors.passwrordConfirmation ? "border-red-400 focus:border-red-400" : "border-stone-200 focus-within:border-stone-300"
+                    } bg-white text-stone-800 hover:border-stone-300`}
+                  />
+                </div>
+                {errors.passwrordConfirmation && (
+                  <p className="text-xs text-red-500 mt-0.5">{errors.passwrordConfirmation.message}</p>
+                )}
+              </div>
+
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="primary"
+              size="form"
+              isLoading={isSubmitting}
+              className="w-full h-10"
+            >
+              Sign up
+            </Button>
+          </form>
+        </div>
+
+      </div>
+
+      {/* Footer Text */}
+      <p className="text-stone-500 dark:text-stone-600 font-normal text-xs px-4 md:px-0 mt-6 text-center">
+        By signing in, you agree to DropX{" "}
+        <a href="/terms" className="underline font-semibold hover:text-indigo-600">Terms</a>{" "}
+        and{" "}
+        <a href="/privacy" className="underline font-semibold hover:text-indigo-600">Privacy Policy</a>
+      </p>
+    </div>
   );
 }

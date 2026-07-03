@@ -1,4 +1,4 @@
-import { Fira_Code as FontMono, Space_Grotesk as FontSans } from "next/font/google";
+import { Instrument_Serif as FontSerif, Geist as FontSans, Geist_Mono as FontMono } from "next/font/google";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -8,4 +8,11 @@ export const fontSans = FontSans({
 export const fontMono = FontMono({
   subsets: ["latin"],
   variable: "--font-mono",
+});
+
+export const fontSerif = FontSerif({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400"],
+  style: ["normal", "italic"],
 });
