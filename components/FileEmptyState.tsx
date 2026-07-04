@@ -9,15 +9,15 @@ interface FileEmptyStateProps {
 
 export default function FileEmptyState({ activeTab }: FileEmptyStateProps) {
   return (
-    <Card className="border border-default-200 bg-default-50">
+    <Card className="border border-stone-200 bg-white rounded-2xl">
       <CardBody className="text-center py-16">
-        <File className="h-16 w-16 mx-auto text-primary/50 mb-6" />
-        <h3 className="text-xl font-medium mb-2">
+        <File className="h-16 w-16 mx-auto text-[#615FFF]/50 mb-6" />
+        <h3 className="text-xl font-semibold text-stone-800 mb-2">
           {activeTab === "all" && "No files available"}
           {activeTab === "starred" && "No starred files"}
           {activeTab === "trash" && "Trash is empty"}
         </h3>
-        <p className="text-default-500 mt-2 max-w-md mx-auto">
+        <p className="text-stone-500 mt-2 max-w-md mx-auto">
           {activeTab === "all" &&
             "Upload your first file to get started with your personal cloud storage"}
           {activeTab === "starred" &&

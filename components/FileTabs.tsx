@@ -24,13 +24,12 @@ export default function FileTabs({
     <Tabs
       selectedKey={activeTab}
       onSelectionChange={(key) => onTabChange(key as string)}
-      color="primary"
       variant="underlined"
       classNames={{
-        base: "w-full overflow-x-auto",
+        base: "w-full overflow-x-auto border-b border-stone-100",
         tabList: "gap-2 sm:gap-4 md:gap-6 flex-nowrap min-w-full",
-        tab: "py-3 whitespace-nowrap",
-        cursor: "bg-primary",
+        tab: "py-3 whitespace-nowrap text-stone-600 hover:text-stone-900 data-[selected=true]:text-[#615FFF] font-mono uppercase text-xs font-bold tracking-wider",
+        cursor: "bg-[#615FFF] h-[2px]",
       }}
     >
       <Tab

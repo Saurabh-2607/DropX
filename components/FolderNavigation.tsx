@@ -22,6 +22,7 @@ export default function FolderNavigation({
         isIconOnly
         onClick={navigateUp}
         isDisabled={folderPath.length === 0}
+        className="bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 rounded-lg min-w-8 h-8"
       >
         <ArrowUpFromLine className="h-4 w-4" />
       </Button>
@@ -29,18 +30,18 @@ export default function FolderNavigation({
         variant="flat"
         size="sm"
         onClick={() => navigateToPathFolder(-1)}
-        className={folderPath.length === 0 ? "font-bold" : ""}
+        className={`bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 font-mono uppercase text-[10px] font-bold tracking-wider rounded-lg h-8 px-3 ${folderPath.length === 0 ? "border-[#615FFF] text-[#615FFF] bg-[#615FFF]/5" : ""}`}
       >
         Home
       </Button>
       {folderPath.map((folder, index) => (
         <div key={folder.id} className="flex items-center">
-          <span className="mx-1 text-default-400">/</span>
+          <span className="mx-1 text-stone-400 font-mono">/</span>
           <Button
             variant="flat"
             size="sm"
             onClick={() => navigateToPathFolder(index)}
-            className={`${index === folderPath.length - 1 ? "font-bold" : ""} text-ellipsis overflow-hidden max-w-[150px]`}
+            className={`bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 font-mono uppercase text-[10px] font-bold tracking-wider rounded-lg h-8 px-3 text-ellipsis overflow-hidden max-w-[150px] ${index === folderPath.length - 1 ? "border-[#615FFF] text-[#615FFF] bg-[#615FFF]/5" : ""}`}
             title={folder.name}
           >
             {folder.name}

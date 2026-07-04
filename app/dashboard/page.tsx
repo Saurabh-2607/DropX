@@ -25,10 +25,10 @@ export default async function Dashboard() {
     : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-default-50">
+    <div className="min-h-screen flex flex-col bg-stone-50 text-stone-800 selection:bg-indigo-500 selection:text-white">
       <Navbar user={serializedUser} />
 
-      <main className="flex-1 container mx-auto py-8 px-6">
+      <main className="flex-1 container mx-auto py-8 px-4 md:px-6">
         <DashboardContent
           userId={userId}
           userName={
@@ -40,17 +40,22 @@ export default async function Dashboard() {
         />
       </main>
 
-      <footer className="bg-default-50 border-t border-default-200 py-6">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <CloudUpload className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">DropX</h2>
-            </div>
-            <p className="text-default-500 text-sm">
-              &copy; {new Date().getFullYear()} DropX
-            </p>
+      <footer className="border-t border-stone-200 mt-8 py-6 bg-white">
+        <div className="container mx-auto px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-stone-800">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 13-2-3-2 3" vector-effect="non-scaling-stroke"></path>
+              <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 22s-3-6-6-9" vector-effect="non-scaling-stroke"></path>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+            </svg>
+            <span className="font-mono text-xs font-semibold tracking-[0.08em] text-stone-800 uppercase">
+              DROPX
+            </span>
           </div>
+          <p className="text-[10px] font-mono text-stone-400">
+            &copy; {new Date().getFullYear()} DropX. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

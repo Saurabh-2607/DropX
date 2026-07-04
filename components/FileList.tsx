@@ -420,7 +420,7 @@ export default function FileList({
       ) : (
         <Card
           shadow="sm"
-          className="border border-default-200 bg-default-50 overflow-hidden"
+          className="border border-stone-200 bg-white rounded-2xl overflow-hidden"
         >
           <div className="overflow-x-auto">
             <Table
@@ -430,8 +430,8 @@ export default function FileList({
               selectionMode="none"
               classNames={{
                 base: "min-w-full",
-                th: "bg-default-100 text-default-800 font-medium text-sm",
-                td: "py-4",
+                th: "bg-stone-50 border-b border-stone-100 text-stone-600 font-mono uppercase text-[10px] font-bold tracking-wider py-4",
+                td: "py-4 border-b border-stone-50 text-sm text-stone-700",
               }}
             >
               <TableHeader>
@@ -447,7 +447,7 @@ export default function FileList({
                 {filteredFiles.map((file) => (
                   <TableRow
                     key={file.id}
-                    className={`hover:bg-default-100 transition-colors ${
+                    className={`hover:bg-stone-50 transition-colors ${
                       file.isFolder || file.type.startsWith("image/")
                         ? "cursor-pointer"
                         : ""

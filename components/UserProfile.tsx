@@ -5,8 +5,6 @@ import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Avatar } from "@heroui/avatar";
-import { Divider } from "@heroui/divider";
-import {Badge} from "@heroui/badge";
 import { useRouter } from "next/navigation";
 import { Mail, User, LogOut, Shield, ArrowRight } from "lucide-react";
 
@@ -18,34 +16,30 @@ export default function UserProfile() {
   if (!isLoaded) {
     return (
       <div className="flex flex-col justify-center items-center p-12">
-        <Spinner size="lg" color="primary" />
-        <p className="mt-4 text-default-600">Loading your profile...</p>
+        <Spinner size="lg" color="default" className="text-[#615FFF]" />
+        <p className="mt-4 text-stone-500 font-mono text-xs uppercase tracking-wider">Loading your profile...</p>
       </div>
     );
   }
 
   if (!isSignedIn) {
     return (
-      <Card className="max-w-md mx-auto border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
-        <CardHeader className="flex gap-3">
-          <User className="h-6 w-6 text-primary" />
-          <h2 className="text-xl font-semibold">User Profile</h2>
+      <Card className="max-w-md mx-auto border border-stone-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardHeader className="flex gap-3 px-6 pt-6 pb-4 border-b border-stone-100">
+          <User className="h-5 w-5 text-[#615FFF]" />
+          <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
         </CardHeader>
-        <Divider />
-        <CardBody className="text-center py-10">
+        <CardBody className="text-center py-10 px-6">
           <div className="mb-6">
-            <Avatar name="Guest" size="lg" className="mx-auto mb-4" />
-            <p className="text-lg font-medium">Not Signed In</p>
-            <p className="text-default-500 mt-2">
+            <Avatar name="Guest" size="lg" className="mx-auto mb-4 bg-stone-100 text-stone-600" />
+            <p className="text-lg font-semibold text-stone-800">Not Signed In</p>
+            <p className="text-stone-500 text-sm mt-2">
               Please sign in to access your profile
             </p>
           </div>
           <Button
-            variant="solid"
-            color="primary"
-            size="lg"
             onClick={() => router.push("/sign-in")}
-            className="px-8"
+            className="px-8 bg-[#615FFF] hover:bg-[#4f4dcf] text-white font-mono uppercase text-xs font-bold tracking-wider rounded-lg h-10 transition-colors"
             endContent={<ArrowRight className="h-4 w-4" />}
           >
             Sign In
@@ -72,96 +66,76 @@ export default function UserProfile() {
   };
 
   return (
-    <Card className="max-w-md mx-auto border border-default-200 bg-default-50 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="flex gap-3">
-        <User className="h-6 w-6 text-primary" />
-        <h2 className="text-xl font-semibold">User Profile</h2>
+    <Card className="max-w-md mx-auto border border-stone-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
+      <CardHeader className="flex gap-3 px-6 pt-6 pb-4 border-b border-stone-100">
+        <User className="h-5 w-5 text-[#615FFF]" />
+        <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
       </CardHeader>
-      <Divider />
-      <CardBody className="py-6">
+      <CardBody className="py-6 px-6">
         <div className="flex flex-col items-center text-center mb-6">
           {user.imageUrl ? (
             <Avatar
               src={user.imageUrl}
               alt={fullName}
               size="lg"
-              className="mb-4 h-24 w-24"
+              className="mb-4 h-24 w-24 border border-stone-100"
             />
           ) : (
             <Avatar
               name={initials}
               size="lg"
-              className="mb-4 h-24 w-24 text-lg"
+              className="mb-4 h-24 w-24 text-lg bg-stone-100 text-stone-600"
             />
           )}
-          <h3 className="text-xl font-semibold">{fullName}</h3>
+          <h3 className="text-xl font-semibold text-stone-800">{fullName}</h3>
           {user.emailAddresses && user.emailAddresses.length > 0 && (
-            <div className="flex items-center gap-2 mt-1 text-default-500">
-              <Mail className="h-4 w-4" />
+            <div className="flex items-center gap-2 mt-1 text-stone-500 text-sm">
+              <Mail className="h-4 w-4 text-stone-400" />
               <span>{email}</span>
             </div>
           )}
           {userRole && (
-            <Badge
-              color="primary"
-              variant="flat"
-              className="mt-3"
-              aria-label={`User role: ${userRole}`}
-            >
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#615FFF]/10 text-[#615FFF] border border-[#615FFF]/20 mt-3">
               {userRole}
-            </Badge>
+            </span>
           )}
         </div>
 
-        <Divider className="my-4" />
+        <div className="border-t border-stone-100 my-4" />
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary/70" />
-              <span className="font-medium">Account Status</span>
+            <div className="flex items-center gap-2 text-stone-700">
+              <Shield className="h-4 w-4 text-[#615FFF]/70" />
+              <span className="font-medium text-sm">Account Status</span>
             </div>
-            <Badge
-              color="success"
-              variant="flat"
-              aria-label="Account status: Active"
-            >
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">
               Active
-            </Badge>
+            </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-primary/70" />
-              <span className="font-medium">Email Verification</span>
+            <div className="flex items-center gap-2 text-stone-700">
+              <Mail className="h-4 w-4 text-[#615FFF]/70" />
+              <span className="font-medium text-sm">Email Verification</span>
             </div>
-            <Badge
-              color={
-                user.emailAddresses?.[0]?.verification?.status === "verified"
-                  ? "success"
-                  : "warning"
-              }
-              variant="flat"
-              aria-label={`Email verification status: ${
-                user.emailAddresses?.[0]?.verification?.status === "verified"
-                  ? "Verified"
-                  : "Pending"
-              }`}
-            >
+            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
+              user.emailAddresses?.[0]?.verification?.status === "verified"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                : "bg-amber-50 text-amber-700 border-amber-100"
+            }`}>
               {user.emailAddresses?.[0]?.verification?.status === "verified"
                 ? "Verified"
                 : "Pending"}
-            </Badge>
+            </span>
           </div>
         </div>
       </CardBody>
-      <Divider />
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-end px-6 pb-6 pt-2 border-t border-stone-100 bg-stone-50/50">
         <Button
-          variant="flat"
-          color="danger"
-          startContent={<LogOut className="h-4 w-4" />}
           onClick={handleSignOut}
+          className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-mono uppercase text-xs font-bold tracking-wider rounded-lg h-10 transition-colors"
+          startContent={<LogOut className="h-4 w-4" />}
         >
           Sign Out
         </Button>
