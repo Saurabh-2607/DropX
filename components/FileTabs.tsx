@@ -4,6 +4,7 @@ import { File, Star, Trash } from "lucide-react";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Badge } from "@heroui/badge";
 import type { File as FileType } from "@/lib/db/schema";
+import { Button } from "@/components/ui/Button";
 
 interface FileTabsProps {
   activeTab: string;
@@ -12,6 +13,7 @@ interface FileTabsProps {
   starredCount: number;
   trashCount: number;
   onEmptyTrash?: () => void;
+  onUploadClick?: () => void;
 }
 
 export default function FileTabs({
@@ -21,12 +23,13 @@ export default function FileTabs({
   starredCount,
   trashCount,
   onEmptyTrash,
+  onUploadClick,
 }: FileTabsProps) {
   // Only count non-folder files for the counter display
   const allFilesCount = files.filter((file) => !file.isTrash && !file.isFolder).length;
 
   return (
-    <div className="flex justify-between items-center border-b border-stone-100 w-full pb-0.5">
+    <div className="flex justify-between items-center border-b border-stone-100 w-full pb-0.5 min-h-[44px]">
       <Tabs
         selectedKey={activeTab}
         onSelectionChange={(key) => onTabChange(key as string)}
@@ -91,15 +94,33 @@ export default function FileTabs({
         />
       </Tabs>
 
-      {activeTab === "trash" && trashCount > 0 && onEmptyTrash && (
-        <button
-          onClick={onEmptyTrash}
-          className="bg-red-50 hover:bg-red-100 border border-red-100 text-red-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
-        >
-          <Trash className="h-3 w-3" />
-          Empty Trash
-        </button>
-      )}
+      <div className="flex items-center gap-2">
+        {activeTab === "trash" && trashCount > 0 && onEmptyTrash ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onEmptyTrash}
+            className="h-8 text-[10px] px-3 gap-1 border-red-200 bg-red-50/50 hover:bg-red-50 text-red-700 hover:text-red-800 hover:border-red-300"
+          >
+            <Trash className="h-3.5 w-3.5" />
+            Empty Trash
+          </Button>
+        ) : (
+          onUploadClick && (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={onUploadClick}
+              className="gap-1.5"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              </svg>
+              Upload Files
+            </Button>
+          )
+        )}
+      </div>
     </div>
   );
 }

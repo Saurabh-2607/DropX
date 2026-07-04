@@ -28,7 +28,7 @@ export default async function Dashboard() {
     <div className="min-h-screen flex flex-col bg-stone-50 text-stone-800 selection:bg-indigo-500 selection:text-white">
       <Navbar user={serializedUser} />
 
-      <main className="flex-grow max-w-6xl w-full mx-auto py-12 px-4 md:px-6">
+      <main className="flex-grow max-w-6xl w-full mx-auto pt-6 pb-12">
         <DashboardContent
           userId={userId}
           userName={

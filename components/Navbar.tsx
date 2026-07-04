@@ -1,6 +1,6 @@
 "use client";
 
-import { useClerk, useAuth } from "@clerk/nextjs";
+import { useClerk, useAuth, useUser } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { User, Menu, X } from "lucide-react";
@@ -32,6 +32,7 @@ interface NavbarProps {
 export default function Navbar({ user }: NavbarProps) {
   const { signOut } = useClerk();
   const { isLoaded, isSignedIn } = useAuth();
+  const { user: clerkUser } = useUser();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -42,30 +43,43 @@ export default function Navbar({ user }: NavbarProps) {
     });
   };
 
+  const activeUser = user || (clerkUser ? {
+    id: clerkUser.id,
+    firstName: clerkUser.firstName,
+    lastName: clerkUser.lastName,
+    imageUrl: clerkUser.imageUrl,
+    username: clerkUser.username,
+    emailAddress: clerkUser.emailAddresses?.[0]?.emailAddress,
+  } : null);
+
   const userDetails = {
-    fullName: user
-      ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+    fullName: activeUser
+      ? `${activeUser.firstName || ""} ${activeUser.lastName || ""}`.trim()
       : "",
-    initials: user
-      ? `${user.firstName || ""} ${user.lastName || ""}`
+    initials: activeUser
+      ? `${activeUser.firstName || ""} ${activeUser.lastName || ""}`
           .trim()
           .split(" ")
           .map((name) => name?.[0] || "")
           .join("")
           .toUpperCase() || "U"
       : "U",
-    displayName: user
-      ? user.firstName && user.lastName
-        ? `${user.firstName} ${user.lastName}`
-        : user.firstName || user.username || user.emailAddress || "User"
+    displayName: activeUser
+      ? activeUser.firstName && activeUser.lastName
+        ? `${activeUser.firstName} ${activeUser.lastName}`
+        : activeUser.firstName || activeUser.username || activeUser.emailAddress || "User"
       : "User",
-    email: user?.emailAddress || "",
+    email: activeUser?.emailAddress || "",
   };
 
   return (
     <header className="sticky top-0 w-full backdrop-blur-lg z-50 flex justify-center bg-stone-50/80 border-b border-stone-200/50">
       <div className="max-w-6xl w-full">
-        <div className="lg:grid gap-4 flex items-center lg:grid-cols-3 h-14 w-full py-1 px-4 lg:px-6">
+        <div className={`gap-4 flex items-center h-14 w-full py-1 px-4 md:px-6 ${
+          isSignedIn 
+            ? "justify-between" 
+            : "lg:grid lg:grid-cols-3"
+        }`}>
           
           {/* Left: Brand Logo & Icon */}
           <Link href="/" className="flex items-center gap-2 group w-fit hover:opacity-70">
@@ -80,42 +94,44 @@ export default function Navbar({ user }: NavbarProps) {
             </span>
           </Link>
 
-          {/* Center Links (hidden on mobile) */}
-          <div className="hidden lg:flex items-center justify-center gap-2 font-mono">
-            <Dropdown>
-              <DropdownTrigger>
-                <button className="flex font-mono justify-between px-3 py-1 gap-1 rounded-lg items-center uppercase text-sm font-semibold select-none cursor-pointer text-stone-800 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none">
-                  Solutions{" "}
-                  <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
-                    </svg>
-                  </span>
-                </button>
-              </DropdownTrigger>
-              <DropdownMenu 
-                aria-label="Solutions dropdown"
-                onAction={() => router.push("/dashboard")}
-              >
-                <DropdownItem key="storage">Media Storage</DropdownItem>
-                <DropdownItem key="sharing">Secure Sharing</DropdownItem>
-                <DropdownItem key="filters">Quick Filters</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+          {/* Center Links (hidden on mobile, and hidden when logged in) */}
+          {(!isLoaded || !isSignedIn) && (
+            <div className="hidden lg:flex items-center justify-center gap-2 font-mono">
+              <Dropdown>
+                <DropdownTrigger>
+                  <button className="flex font-mono justify-between px-3 py-1 gap-1 rounded-lg items-center uppercase text-sm font-semibold select-none cursor-pointer text-stone-800 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none">
+                    Solutions{" "}
+                    <span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
+                      </svg>
+                    </span>
+                  </button>
+                </DropdownTrigger>
+                <DropdownMenu 
+                  aria-label="Solutions dropdown"
+                  onAction={() => router.push("/dashboard")}
+                >
+                  <DropdownItem key="storage">Media Storage</DropdownItem>
+                  <DropdownItem key="sharing">Secure Sharing</DropdownItem>
+                  <DropdownItem key="filters">Quick Filters</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
 
-            <a
-              href="#features"
-              className="flex font-mono justify-between px-3 py-1 gap-1 items-center uppercase text-sm font-semibold select-none cursor-pointer rounded-lg hover:bg-indigo-50 transition-colors duration-200 text-stone-800 hover:text-indigo-600"
-            >
-              Features
-            </a>
-            <Link
-              href="/dashboard"
-              className="flex font-mono justify-between px-3 py-1 gap-1 items-center uppercase text-sm font-semibold select-none cursor-pointer rounded-lg hover:bg-indigo-50 transition-colors duration-200 text-stone-800 hover:text-indigo-600"
-            >
-              Workspace
-            </Link>
-          </div>
+              <a
+                href="#features"
+                className="flex font-mono justify-between px-3 py-1 gap-1 items-center uppercase text-sm font-semibold select-none cursor-pointer rounded-lg hover:bg-indigo-50 transition-colors duration-200 text-stone-800 hover:text-indigo-600"
+              >
+                Features
+              </a>
+              <Link
+                href="/dashboard"
+                className="flex font-mono justify-between px-3 py-1 gap-1 items-center uppercase text-sm font-semibold select-none cursor-pointer rounded-lg hover:bg-indigo-50 transition-colors duration-200 text-stone-800 hover:text-indigo-600"
+              >
+                Workspace
+              </Link>
+            </div>
+          )}
 
           {/* Right Action buttons */}
           <div className="flex gap-2 lg:gap-4 justify-end items-center flex-1 lg:w-full">
@@ -125,15 +141,17 @@ export default function Navbar({ user }: NavbarProps) {
                 <Button variant="primary" href="/dashboard">Sign up</Button>
               </>
             ) : (
-              <div className="flex items-center gap-4">
-                <Button variant="primary" href="/dashboard">Dashboard</Button>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs font-semibold text-stone-600 hidden sm:inline-block">
+                  {userDetails.displayName}
+                </span>
                 <Dropdown>
                   <DropdownTrigger>
                     <button className="focus:outline-none cursor-pointer flex items-center gap-1">
                       <Avatar
                         name={userDetails.initials}
                         size="sm"
-                        src={user?.imageUrl || undefined}
+                        src={activeUser?.imageUrl || undefined}
                         className="h-8 w-8 border border-stone-200"
                         fallback={<User className="h-4 w-4" />}
                       />
@@ -151,18 +169,20 @@ export default function Navbar({ user }: NavbarProps) {
               </div>
             )}
 
-            {/* Mobile menu trigger */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-1 text-stone-600 hover:text-stone-900 focus:outline-none"
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            {/* Mobile menu trigger (only when logged out) */}
+            {(!isLoaded || !isSignedIn) && (
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-1 text-stone-600 hover:text-stone-900 focus:outline-none"
+              >
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Mobile menu drawer */}
-        {isMobileMenuOpen && (
+        {/* Mobile menu drawer (only when logged out) */}
+        {isMobileMenuOpen && (!isLoaded || !isSignedIn) && (
           <div className="lg:hidden w-full border-t border-stone-200 bg-stone-50 py-4 px-6 flex flex-col gap-4 font-mono">
             <Link
               href="#features"

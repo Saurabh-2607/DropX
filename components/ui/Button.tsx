@@ -26,11 +26,11 @@ export const Button = React.forwardRef<any, ButtonProps>(
 
     const sizeStyles = {
       sm: "text-xs leading-4 rounded-lg px-3 py-1 h-6",
-      md: "text-sm leading-5 rounded-xl px-4 py-1.5 h-8",
-      lg: "text-sm md:text-base leading-6 rounded-xl px-6 py-2.5 h-11",
+      md: "text-sm leading-5 rounded-lg px-4 py-1.5 h-8",
+      lg: "text-sm md:text-base leading-6 rounded-lg px-6 py-2.5 h-11",
       form: "text-[11px] leading-5 rounded-lg px-4 py-2.5 h-10 tracking-wider",
       responsive:
-        "text-xs leading-4 rounded-lg px-3 py-1 h-6 lg:text-sm lg:leading-5 lg:rounded-xl lg:px-4 lg:py-1.5 lg:h-8",
+        "text-xs leading-4 rounded-lg px-3 py-1 h-6 lg:text-sm lg:leading-5 lg:rounded-lg lg:px-4 lg:py-1.5 lg:h-8",
     };
 
     const combinedClassName = cn(

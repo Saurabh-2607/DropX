@@ -1,42 +1,44 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Star, Trash, X, MoreVertical } from "lucide-react";
+import { Star, Trash, X, MoreVertical, Check } from "lucide-react";
 import { addToast } from "@heroui/toast";
 import type { File as FileType } from "@/lib/db/schema";
 import axios from "axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import FileEmptyState from "@/components/FileEmptyState";
 import FileTabs from "@/components/FileTabs";
+import { Button } from "@/components/ui/Button";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
 interface FileListProps {
   userId: string;
   refreshTrigger?: number;
   onFolderChange?: (folderId: string | null) => void;
+  onUploadClick?: () => void;
 }
 
 const getFriendlyFileType = (type: string, name: string) => {
   if (type === "folder") return "Folder";
   const ext = name.split(".").pop()?.toUpperCase() || "";
   if (!ext) return type;
-  
+
   if (type.startsWith("image/")) return `${ext} Image`;
   if (type.includes("pdf")) return "PDF Document";
   if (type.includes("zip") || type.includes("compressed")) return `${ext} Archive`;
   if (type.includes("javascript") || type.includes("typescript") || ext === "JSX" || ext === "TSX") return `${ext} File`;
   if (type.startsWith("video/")) return `${ext} Video`;
   if (type.startsWith("text/")) return `${ext} Document`;
-  
+
   return `${ext} File`;
 };
 
 const FileIllustration = ({ type, name }: { type: string; name: string }) => {
   const extension = name.split(".").pop()?.toUpperCase() || "FILE";
-  
+
   let bgClass = "bg-stone-50 border-stone-200 text-stone-600";
   let iconColor = "text-stone-400";
-  
+
   if (type.includes("pdf")) {
     bgClass = "bg-red-50/40 border-red-150 text-red-700";
     iconColor = "text-red-400";
@@ -81,7 +83,7 @@ const FileIllustration = ({ type, name }: { type: string; name: string }) => {
 const FileIconLarge = ({ type, name }: { type: string; name: string }) => {
   const extension = name.split(".").pop()?.toUpperCase() || "FILE";
   let iconColor = "text-stone-400";
-  
+
   if (type.includes("pdf")) iconColor = "text-red-500";
   else if (type.includes("zip") || type.includes("compressed")) iconColor = "text-amber-500";
   else if (type.includes("javascript") || type.includes("typescript") || extension === "JSX") iconColor = "text-blue-500";
@@ -103,6 +105,7 @@ const FileIconLarge = ({ type, name }: { type: string; name: string }) => {
 export default function FileList({
   userId,
   refreshTrigger = 0,
+  onUploadClick,
 }: FileListProps) {
   const [files, setFiles] = useState<FileType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -180,9 +183,8 @@ export default function FileList({
       const file = files.find((f) => f.id === fileId);
       addToast({
         title: file?.isStarred ? "Removed from Starred" : "Added to Starred",
-        description: `"${file?.name}" has been ${
-          file?.isStarred ? "removed from" : "added to"
-        } your starred files`,
+        description: `"${file?.name}" has been ${file?.isStarred ? "removed from" : "added to"
+          } your starred files`,
         color: "success",
       });
     } catch (error) {
@@ -211,9 +213,8 @@ export default function FileList({
       const file = files.find((f) => f.id === fileId);
       addToast({
         title: responseData.isTrash ? "Moved to Trash" : "Restored from Trash",
-        description: `"${file?.name}" has been ${
-          responseData.isTrash ? "moved to trash" : "restored"
-        }`,
+        description: `"${file?.name}" has been ${responseData.isTrash ? "moved to trash" : "restored"
+          }`,
         color: "success",
       });
     } catch (error) {
@@ -231,8 +232,8 @@ export default function FileList({
     setSelectedFileIds(new Set());
   }, [activeTab]);
 
-  const toggleSelectFile = (fileId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleSelectFile = (fileId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setSelectedFileIds((prev) => {
       const next = new Set(prev);
       if (next.has(fileId)) {
@@ -259,19 +260,19 @@ export default function FileList({
         description: `Updating ${selectedFileIds.size} files...`,
         color: "primary",
       });
-      
+
       const ids = Array.from(selectedFileIds);
       await Promise.all(ids.map(id => axios.patch(`/api/files/${id}/star`)));
-      
+
       const selectedFiles = files.filter(f => selectedFileIds.has(f.id));
       const allSelectedAreStarred = selectedFiles.every(f => f.isStarred);
-      
+
       setFiles(
         files.map((file) =>
           selectedFileIds.has(file.id) ? { ...file, isStarred: !allSelectedAreStarred } : file
         )
       );
-      
+
       addToast({
         title: "Update Successful",
         description: `Successfully updated starred status`,
@@ -295,16 +296,16 @@ export default function FileList({
         description: `Moving ${selectedFileIds.size} files...`,
         color: "primary",
       });
-      
+
       const ids = Array.from(selectedFileIds);
       await Promise.all(ids.map(id => axios.patch(`/api/files/${id}/trash`)));
-      
+
       setFiles(
         files.map((file) =>
           selectedFileIds.has(file.id) ? { ...file, isTrash: true } : file
         )
       );
-      
+
       addToast({
         title: "Moved to Trash",
         description: `Successfully moved files to trash`,
@@ -337,12 +338,12 @@ export default function FileList({
           description: `Permanently deleting ${selectedFileIds.size} files...`,
           color: "danger",
         });
-        
+
         const ids = Array.from(selectedFileIds);
         await Promise.all(ids.map(id => axios.delete(`/api/files/${id}`)));
-        
+
         setFiles(files.filter((file) => !selectedFileIds.has(file.id)));
-        
+
         addToast({
           title: "Deletion Complete",
           description: `${ids.length} files permanently deleted`,
@@ -379,10 +380,10 @@ export default function FileList({
         if (file.type.startsWith("image/")) {
           downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
         }
-        
+
         const response = await fetch(downloadUrl);
         if (!response.ok) throw new Error("Failed");
-        
+
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -396,7 +397,7 @@ export default function FileList({
         console.error("Failed to download", file.name, e);
       }
     }
-    
+
     addToast({
       title: "Downloads Started",
       description: `Completed processing files`,
@@ -530,31 +531,37 @@ export default function FileList({
               Select All
             </button>
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleBulkStar}
-              className="bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
+              className="h-7 text-[9px] px-2.5 gap-1"
             >
               <Star className="h-3 w-3 text-stone-500" />
               Star
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleBulkDownload}
-              className="bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
+              className="h-7 text-[9px] px-2.5 gap-1"
             >
               <svg className="w-3 h-3 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Download
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleBulkDelete}
-              className="bg-red-50 hover:bg-red-100 border border-red-100 text-red-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
+              className="h-7 text-[9px] px-2.5 gap-1 border-red-200 bg-red-50/50 hover:bg-red-50 text-red-700 hover:text-red-800 hover:border-red-300"
             >
               <Trash className="h-3 w-3" />
               {activeTab === "trash" ? "Delete" : "Trash"}
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -566,32 +573,30 @@ export default function FileList({
           starredCount={starredCount}
           trashCount={trashCount}
           onEmptyTrash={() => setEmptyTrashModalOpen(true)}
+          onUploadClick={onUploadClick}
         />
       )}
 
-      {/* Files Grid */}
       {filteredFiles.length === 0 ? (
-        <FileEmptyState activeTab={activeTab} />
+        <FileEmptyState activeTab={activeTab} onUploadClick={onUploadClick} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredFiles.map((file, index) => (
             <div
               key={file.id}
               onClick={() => setLightboxIndex(index)}
-              className={`relative w-full pb-[100%] h-0 rounded-xl overflow-hidden border cursor-pointer transition-all duration-300 ${
-                selectedFileIds.has(file.id)
-                  ? 'border-[#615FFF] ring-2 ring-[#615FFF]/20 bg-[#615FFF]/5'
-                  : 'border-stone-200 bg-stone-50 hover:shadow-md group'
-              }`}
+              className={`relative w-full pb-[100%] h-0 rounded-xl overflow-hidden border cursor-pointer transition-all duration-300 ${selectedFileIds.has(file.id)
+                ? 'border-[#615FFF] ring-2 ring-[#615FFF]/20 bg-[#615FFF]/5'
+                : 'border-stone-200 bg-stone-50 hover:shadow-md group'
+                }`}
             >
               {/* Select Checkbox */}
-              <div 
+              <div
                 onClick={(e) => toggleSelectFile(file.id, e)}
-                className={`absolute top-3 left-3 z-30 w-5 h-5 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
-                  selectedFileIds.has(file.id)
-                    ? 'bg-[#615FFF] border-[#615FFF] text-white shadow-sm'
-                    : 'bg-white/80 border-stone-300 opacity-0 group-hover:opacity-100 hover:bg-white text-transparent'
-                }`}
+                className={`absolute top-3 left-3 z-30 w-5 h-5 rounded-md border flex items-center justify-center transition-all cursor-pointer ${selectedFileIds.has(file.id)
+                  ? 'bg-[#615FFF] border-[#615FFF] text-white shadow-sm'
+                  : 'bg-white/80 border-stone-300 opacity-100 md:opacity-0 group-hover:opacity-100 hover:bg-white text-transparent'
+                  }`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -624,7 +629,7 @@ export default function FileList({
               ) : (
                 <FileIllustration type={file.type} name={file.name} />
               )}
-              
+
               {/* Hover overlay with Actions */}
               <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3 text-white z-20">
                 <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
@@ -639,7 +644,8 @@ export default function FileList({
                     <DropdownMenu
                       aria-label="File actions"
                       onAction={(key) => {
-                        if (key === "star") handleStarFile(file.id);
+                        if (key === "select") toggleSelectFile(file.id);
+                        else if (key === "star") handleStarFile(file.id);
                         else if (key === "download") handleDownloadFile(file);
                         else if (key === "delete") {
                           if (activeTab === "trash") {
@@ -654,6 +660,12 @@ export default function FileList({
                         base: "font-mono uppercase text-[10px]",
                       }}
                     >
+                      <DropdownItem
+                        key="select"
+                        startContent={<Check className="h-3.5 w-3.5 text-stone-400" />}
+                      >
+                        {selectedFileIds.has(file.id) ? "Deselect File" : "Select File"}
+                      </DropdownItem>
                       <DropdownItem
                         key="star"
                         startContent={<Star className={`h-3.5 w-3.5 ${file.isStarred ? 'text-yellow-400 fill-yellow-400' : 'text-stone-400'}`} />}
@@ -681,7 +693,7 @@ export default function FileList({
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-                
+
                 <div className="text-left pointer-events-none">
                   <p className="text-xs font-mono font-bold truncate">{file.name}</p>
                   <p className="text-[10px] text-stone-300 font-mono mt-0.5">
@@ -711,7 +723,7 @@ export default function FileList({
                 {lightboxIndex + 1} of {filteredFiles.length}
               </p>
             </div>
-            
+
             <button
               onClick={() => setLightboxIndex(null)}
               className="p-2 bg-stone-900 hover:bg-stone-850 rounded-full border border-stone-800 transition-colors cursor-pointer text-white focus:outline-none"
@@ -760,12 +772,14 @@ export default function FileList({
                       {getFriendlyFileType(filteredFiles[lightboxIndex].type, filteredFiles[lightboxIndex].name)}
                     </p>
                   </div>
-                  <button
+                  <Button
+                    variant="primary"
+                    size="md"
                     onClick={() => handleDownloadFile(filteredFiles[lightboxIndex])}
-                    className="w-full py-2.5 bg-[#615FFF] hover:bg-[#4F4DDF] text-white rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="w-full"
                   >
                     Download File
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>

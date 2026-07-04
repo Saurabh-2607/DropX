@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { FileText, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Modal, ModalContent } from "@heroui/modal";
 import FileUploadForm from "@/components/FileUploadForm";
 import FileList from "@/components/FileList";
@@ -31,33 +30,12 @@ export default function DashboardContent({
   return (
     <div className="w-full">
       {/* Grid Layout: Compact, Full-Width File Showcase */}
-      <div className="w-full">
-        <Card className="border border-stone-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex justify-between items-center px-6 pt-6 pb-4 border-b border-stone-100">
-            <div className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-[#615FFF]" />
-              <h2 className="text-lg font-bold text-stone-850 font-mono uppercase tracking-wider">Your Files</h2>
-            </div>
-            
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="bg-[#615FFF] hover:bg-[#4F4DDF] text-white font-mono uppercase text-xs font-bold tracking-wider rounded-xl h-9 px-4 flex items-center gap-2 transition-colors cursor-pointer select-none shadow-sm"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-              </svg>
-              Upload Files
-            </button>
-          </CardHeader>
-          <CardBody className="p-6">
-            <FileList
-              userId={userId}
-              refreshTrigger={refreshTrigger}
-              onFolderChange={handleFolderChange}
-            />
-          </CardBody>
-        </Card>
-      </div>
+      <FileList
+        userId={userId}
+        refreshTrigger={refreshTrigger}
+        onFolderChange={handleFolderChange}
+        onUploadClick={() => setIsUploadModalOpen(true)}
+      />
 
       {/* Upload Dialog Modal */}
       <Modal
