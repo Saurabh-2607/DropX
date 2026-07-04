@@ -55,19 +55,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Only allow image uploads
-    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
-      return NextResponse.json(
-        { error: "Only image files are supported" },
-        { status: 400 }
-      );
+    // Normalize file type/mime type with fallbacks
+    let fileType = file.type;
+    const originalFilename = file.name;
+    const fileExtension = originalFilename.split(".").pop()?.toLowerCase() || "";
+
+    if (!fileType) {
+      if (fileExtension === "jsx" || fileExtension === "tsx" || fileExtension === "js" || fileExtension === "ts") {
+        fileType = "text/javascript";
+      } else if (fileExtension === "zip") {
+        fileType = "application/zip";
+      } else if (fileExtension === "csv") {
+        fileType = "text/csv";
+      } else if (fileExtension === "md") {
+        fileType = "text/markdown";
+      } else if (fileExtension === "mp4") {
+        fileType = "video/mp4";
+      } else if (fileExtension === "pdf") {
+        fileType = "application/pdf";
+      } else {
+        fileType = "application/octet-stream";
+      }
     }
 
     const buffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(buffer);
 
-    const originalFilename = file.name;
-    const fileExtension = originalFilename.split(".").pop() || "";
     const uniqueFilename = `${uuidv4()}.${fileExtension}`;
 
     // Create folder path based on parent folder if exists
@@ -86,7 +99,7 @@ export async function POST(request: NextRequest) {
       name: originalFilename,
       path: uploadResponse.filePath,
       size: file.size,
-      type: file.type,
+      type: fileType,
       fileUrl: uploadResponse.url,
       thumbnailUrl: uploadResponse.thumbnailUrl || null,
       userId: userId,

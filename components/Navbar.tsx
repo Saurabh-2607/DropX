@@ -13,6 +13,8 @@ import {
 import { Avatar } from "@heroui/avatar";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Modal, ModalContent } from "@heroui/modal";
+import UserProfile from "@/components/UserProfile";
 
 interface SerializedUser {
   id: string;
@@ -32,6 +34,7 @@ export default function Navbar({ user }: NavbarProps) {
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const handleSignOut = () => {
     signOut(() => {
@@ -67,10 +70,10 @@ export default function Navbar({ user }: NavbarProps) {
           {/* Left: Brand Logo & Icon */}
           <Link href="/" className="flex items-center gap-2 group w-fit hover:opacity-70">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-stone-800">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 13-2-3-2 3" vector-effect="non-scaling-stroke"></path>
-              <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 22s-3-6-6-9" vector-effect="non-scaling-stroke"></path>
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14 13-2-3-2 3" vectorEffect="non-scaling-stroke"></path>
+              <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M16 22s-3-6-6-9"></path>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
             </svg>
             <span className="font-mono text-sm font-semibold tracking-[0.08em] text-stone-800 uppercase">
               DROPX
@@ -85,7 +88,7 @@ export default function Navbar({ user }: NavbarProps) {
                   Solutions{" "}
                   <span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                      <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"></path>
                     </svg>
                   </span>
                 </button>
@@ -137,7 +140,7 @@ export default function Navbar({ user }: NavbarProps) {
                     </button>
                   </DropdownTrigger>
                   <DropdownMenu aria-label="User menu">
-                    <DropdownItem key="profile" onClick={() => router.push("/dashboard?tab=profile")}>
+                    <DropdownItem key="profile" onClick={() => setIsProfileModalOpen(true)}>
                       Profile
                     </DropdownItem>
                     <DropdownItem key="signout" color="danger" className="text-danger" onClick={handleSignOut}>
@@ -178,6 +181,20 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={isProfileModalOpen}
+        onOpenChange={setIsProfileModalOpen}
+        backdrop="blur"
+        hideCloseButton
+        classNames={{
+          base: "bg-transparent shadow-none border-none p-0 max-w-md mx-4",
+        }}
+      >
+        <ModalContent>
+          <UserProfile onClose={() => setIsProfileModalOpen(false)} />
+        </ModalContent>
+      </Modal>
     </header>
   );
 }

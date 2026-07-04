@@ -6,9 +6,13 @@ import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Avatar } from "@heroui/avatar";
 import { useRouter } from "next/navigation";
-import { Mail, User, LogOut, Shield, ArrowRight } from "lucide-react";
+import { Mail, User, LogOut, Shield, ArrowRight, X } from "lucide-react";
 
-export default function UserProfile() {
+interface UserProfileProps {
+  onClose?: () => void;
+}
+
+export default function UserProfile({ onClose }: UserProfileProps) {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
@@ -24,10 +28,17 @@ export default function UserProfile() {
 
   if (!isSignedIn) {
     return (
-      <Card className="max-w-md mx-auto border border-stone-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
-        <CardHeader className="flex gap-3 px-6 pt-6 pb-4 border-b border-stone-100">
-          <User className="h-5 w-5 text-[#615FFF]" />
-          <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
+      <Card className="max-w-md mx-auto border border-stone-200 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-4 border-b border-stone-100">
+          <div className="flex gap-3 items-center">
+            <User className="h-5 w-5 text-[#615FFF]" />
+            <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
+          </div>
+          {onClose && (
+            <button onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer focus:outline-none">
+              <X className="h-5 w-5" />
+            </button>
+          )}
         </CardHeader>
         <CardBody className="text-center py-10 px-6">
           <div className="mb-6">
@@ -38,7 +49,10 @@ export default function UserProfile() {
             </p>
           </div>
           <Button
-            onClick={() => router.push("/sign-in")}
+            onClick={() => {
+              if (onClose) onClose();
+              router.push("/sign-in");
+            }}
             className="px-8 bg-[#615FFF] hover:bg-[#4f4dcf] text-white font-mono uppercase text-xs font-bold tracking-wider rounded-lg h-10 transition-colors"
             endContent={<ArrowRight className="h-4 w-4" />}
           >
@@ -61,15 +75,23 @@ export default function UserProfile() {
 
   const handleSignOut = () => {
     signOut(() => {
+      if (onClose) onClose();
       router.push("/");
     });
   };
 
   return (
-    <Card className="max-w-md mx-auto border border-stone-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="flex gap-3 px-6 pt-6 pb-4 border-b border-stone-100">
-        <User className="h-5 w-5 text-[#615FFF]" />
-        <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
+    <Card className="max-w-md mx-auto border border-stone-200 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+      <CardHeader className="flex justify-between items-center px-6 pt-6 pb-4 border-b border-stone-100">
+        <div className="flex gap-3 items-center">
+          <User className="h-5 w-5 text-[#615FFF]" />
+          <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer focus:outline-none">
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </CardHeader>
       <CardBody className="py-6 px-6">
         <div className="flex flex-col items-center text-center mb-6">
@@ -131,7 +153,17 @@ export default function UserProfile() {
           </div>
         </div>
       </CardBody>
-      <CardFooter className="flex justify-end px-6 pb-6 pt-2 border-t border-stone-100 bg-stone-50/50">
+      <CardFooter className="flex justify-between px-6 pb-6 pt-2 border-t border-stone-100 bg-stone-50/50">
+        {onClose ? (
+          <Button
+            onClick={onClose}
+            className="bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-850 font-mono uppercase text-xs font-bold tracking-wider rounded-lg h-10 transition-colors"
+          >
+            Close
+          </Button>
+        ) : (
+          <div></div>
+        )}
         <Button
           onClick={handleSignOut}
           className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-mono uppercase text-xs font-bold tracking-wider rounded-lg h-10 transition-colors"

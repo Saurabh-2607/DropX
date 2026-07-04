@@ -1,30 +1,14 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Folder, Star, Trash, X, ExternalLink } from "lucide-react";
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@heroui/table";
-import { Divider } from "@heroui/divider";
-import { Tooltip } from "@heroui/tooltip";
-import { Card } from "@heroui/card";
+import { Star, Trash, X, MoreVertical } from "lucide-react";
 import { addToast } from "@heroui/toast";
-import { formatDistanceToNow, format } from "date-fns";
 import type { File as FileType } from "@/lib/db/schema";
 import axios from "axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import FileEmptyState from "@/components/FileEmptyState";
-import FileIcon from "@/components/FileIcon";
-import FileActions from "@/components/FileActions";
-import FileLoadingState from "@/components/FileLoadingState";
 import FileTabs from "@/components/FileTabs";
-import FolderNavigation from "@/components/FolderNavigation";
-import FileActionButtons from "@/components/FileActionButtons";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
 interface FileListProps {
   userId: string;
@@ -32,37 +16,115 @@ interface FileListProps {
   onFolderChange?: (folderId: string | null) => void;
 }
 
+const getFriendlyFileType = (type: string, name: string) => {
+  if (type === "folder") return "Folder";
+  const ext = name.split(".").pop()?.toUpperCase() || "";
+  if (!ext) return type;
+  
+  if (type.startsWith("image/")) return `${ext} Image`;
+  if (type.includes("pdf")) return "PDF Document";
+  if (type.includes("zip") || type.includes("compressed")) return `${ext} Archive`;
+  if (type.includes("javascript") || type.includes("typescript") || ext === "JSX" || ext === "TSX") return `${ext} File`;
+  if (type.startsWith("video/")) return `${ext} Video`;
+  if (type.startsWith("text/")) return `${ext} Document`;
+  
+  return `${ext} File`;
+};
+
+const FileIllustration = ({ type, name }: { type: string; name: string }) => {
+  const extension = name.split(".").pop()?.toUpperCase() || "FILE";
+  
+  let bgClass = "bg-stone-50 border-stone-200 text-stone-600";
+  let iconColor = "text-stone-400";
+  
+  if (type.includes("pdf")) {
+    bgClass = "bg-red-50/40 border-red-150 text-red-700";
+    iconColor = "text-red-400";
+  } else if (type.includes("zip") || type.includes("compressed") || type.includes("tar")) {
+    bgClass = "bg-amber-50/40 border-amber-150 text-amber-700";
+    iconColor = "text-amber-400";
+  } else if (
+    type.includes("javascript") ||
+    type.includes("typescript") ||
+    type.includes("html") ||
+    type.includes("css") ||
+    type.includes("json") ||
+    extension === "JSX" ||
+    extension === "TSX" ||
+    extension === "JS" ||
+    extension === "TS"
+  ) {
+    bgClass = "bg-blue-50/40 border-blue-150 text-blue-700";
+    iconColor = "text-blue-400";
+  } else if (type.startsWith("audio/")) {
+    bgClass = "bg-purple-50/40 border-purple-150 text-purple-700";
+    iconColor = "text-purple-400";
+  } else if (type.includes("csv") || type.includes("sheet") || type.includes("excel") || extension === "CSV") {
+    bgClass = "bg-emerald-50/40 border-emerald-150 text-emerald-700";
+    iconColor = "text-emerald-400";
+  }
+
+  return (
+    <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 border rounded-xl ${bgClass} select-none`}>
+      <div className="relative flex flex-col items-center justify-center gap-1.5">
+        <svg className={`w-10 h-10 ${iconColor}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span className="font-mono text-[9px] font-bold uppercase tracking-wider mt-1 px-1.5 py-0.5 bg-white/90 border border-stone-200/50 rounded shadow-sm">
+          {extension.substring(0, 4)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const FileIconLarge = ({ type, name }: { type: string; name: string }) => {
+  const extension = name.split(".").pop()?.toUpperCase() || "FILE";
+  let iconColor = "text-stone-400";
+  
+  if (type.includes("pdf")) iconColor = "text-red-500";
+  else if (type.includes("zip") || type.includes("compressed")) iconColor = "text-amber-500";
+  else if (type.includes("javascript") || type.includes("typescript") || extension === "JSX") iconColor = "text-blue-500";
+  else if (type.startsWith("audio/")) iconColor = "text-purple-500";
+  else if (type.includes("csv") || extension === "CSV") iconColor = "text-emerald-500";
+
+  return (
+    <div className="w-16 h-16 bg-stone-900 border border-stone-800 rounded-2xl flex items-center justify-center relative shadow-lg">
+      <svg className={`w-8 h-8 ${iconColor}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+      <span className="absolute bottom-1.5 right-2 bg-stone-800 text-[8px] font-mono font-bold text-stone-300 px-1 py-0.2 rounded border border-stone-700">
+        {extension.substring(0, 3)}
+      </span>
+    </div>
+  );
+};
+
 export default function FileList({
   userId,
   refreshTrigger = 0,
-  onFolderChange,
 }: FileListProps) {
   const [files, setFiles] = useState<FileType[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
-  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
-  const [folderPath, setFolderPath] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
 
-  // Modal states
+  // Lightbox & Modal states
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [emptyTrashModalOpen, setEmptyTrashModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+  const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
 
   // Fetch files
   const fetchFiles = async () => {
     setLoading(true);
     try {
-      let url = `/api/files?userId=${userId}`;
-      if (currentFolder) {
-        url += `&parentId=${currentFolder}`;
+      const response = await axios.get(`/api/files?userId=${userId}`);
+      if (response.status === 200) {
+        setFiles(response.data);
       }
-
-      const response = await axios.get(url);
-      setFiles(response.data);
     } catch (error) {
-      console.error("Error fetching files:", error);
+      console.error("Error loading files:", error);
       addToast({
         title: "Error Loading Files",
         description: "We couldn't load your files. Please try again later.",
@@ -73,32 +135,34 @@ export default function FileList({
     }
   };
 
-  // Fetch files when userId, refreshTrigger, or currentFolder changes
+  // Fetch files when userId or refreshTrigger changes
   useEffect(() => {
     fetchFiles();
-  }, [userId, refreshTrigger, currentFolder]);
+  }, [userId, refreshTrigger]);
 
-  // Filter files based on active tab
+  // Filter files based on active tab and filter out folders
   const filteredFiles = useMemo(() => {
-    switch (activeTab) {
-      case "starred":
-        return files.filter((file) => file.isStarred && !file.isTrash);
-      case "trash":
-        return files.filter((file) => file.isTrash);
-      case "all":
-      default:
-        return files.filter((file) => !file.isTrash);
+    let result = files;
+
+    if (activeTab === "starred") {
+      result = result.filter((file) => file.isStarred && !file.isTrash);
+    } else if (activeTab === "trash") {
+      result = result.filter((file) => file.isTrash);
+    } else {
+      result = result.filter((file) => !file.isTrash);
     }
+
+    return result.filter((file) => !file.isFolder);
   }, [files, activeTab]);
 
   // Count files in trash
   const trashCount = useMemo(() => {
-    return files.filter((file) => file.isTrash).length;
+    return files.filter((file) => file.isTrash && !file.isFolder).length;
   }, [files]);
 
   // Count starred files
   const starredCount = useMemo(() => {
-    return files.filter((file) => file.isStarred && !file.isTrash).length;
+    return files.filter((file) => file.isStarred && !file.isTrash && !file.isFolder).length;
   }, [files]);
 
   const handleStarFile = async (fileId: string) => {
@@ -162,23 +226,196 @@ export default function FileList({
     }
   };
 
+  // Reset selection on tab change
+  useEffect(() => {
+    setSelectedFileIds(new Set());
+  }, [activeTab]);
+
+  const toggleSelectFile = (fileId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedFileIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(fileId)) {
+        next.delete(fileId);
+      } else {
+        next.add(fileId);
+      }
+      return next;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedFileIds(new Set());
+  };
+
+  const selectAll = () => {
+    setSelectedFileIds(new Set(filteredFiles.map((file) => file.id)));
+  };
+
+  const handleBulkStar = async () => {
+    try {
+      addToast({
+        title: "Updating Star Status",
+        description: `Updating ${selectedFileIds.size} files...`,
+        color: "primary",
+      });
+      
+      const ids = Array.from(selectedFileIds);
+      await Promise.all(ids.map(id => axios.patch(`/api/files/${id}/star`)));
+      
+      const selectedFiles = files.filter(f => selectedFileIds.has(f.id));
+      const allSelectedAreStarred = selectedFiles.every(f => f.isStarred);
+      
+      setFiles(
+        files.map((file) =>
+          selectedFileIds.has(file.id) ? { ...file, isStarred: !allSelectedAreStarred } : file
+        )
+      );
+      
+      addToast({
+        title: "Update Successful",
+        description: `Successfully updated starred status`,
+        color: "success",
+      });
+      clearSelection();
+    } catch (error) {
+      console.error("Error bulk starring:", error);
+      addToast({
+        title: "Bulk Action Failed",
+        description: "Failed to update some files. Please try again.",
+        color: "danger",
+      });
+    }
+  };
+
+  const handleBulkTrash = async () => {
+    try {
+      addToast({
+        title: "Moving Files to Trash",
+        description: `Moving ${selectedFileIds.size} files...`,
+        color: "primary",
+      });
+      
+      const ids = Array.from(selectedFileIds);
+      await Promise.all(ids.map(id => axios.patch(`/api/files/${id}/trash`)));
+      
+      setFiles(
+        files.map((file) =>
+          selectedFileIds.has(file.id) ? { ...file, isTrash: true } : file
+        )
+      );
+      
+      addToast({
+        title: "Moved to Trash",
+        description: `Successfully moved files to trash`,
+        color: "success",
+      });
+      clearSelection();
+    } catch (error) {
+      console.error("Error bulk trashing:", error);
+      addToast({
+        title: "Bulk Action Failed",
+        description: "Failed to move some files to trash.",
+        color: "danger",
+      });
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (activeTab !== "trash") {
+      handleBulkTrash();
+      return;
+    }
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      if (selectedFileIds.size > 0) {
+        addToast({
+          title: "Deleting Files",
+          description: `Permanently deleting ${selectedFileIds.size} files...`,
+          color: "danger",
+        });
+        
+        const ids = Array.from(selectedFileIds);
+        await Promise.all(ids.map(id => axios.delete(`/api/files/${id}`)));
+        
+        setFiles(files.filter((file) => !selectedFileIds.has(file.id)));
+        
+        addToast({
+          title: "Deletion Complete",
+          description: `${ids.length} files permanently deleted`,
+          color: "success",
+        });
+        clearSelection();
+        setDeleteModalOpen(false);
+      } else if (selectedFile) {
+        await handleDeleteFile(selectedFile.id);
+      }
+    } catch (error) {
+      console.error("Error confirming delete:", error);
+      addToast({
+        title: "Deletion Failed",
+        description: "Failed to delete files. Please try again.",
+        color: "danger",
+      });
+    }
+  };
+
+  const handleBulkDownload = async () => {
+    const filesToDownload = files.filter(f => selectedFileIds.has(f.id));
+    if (filesToDownload.length === 0) return;
+
+    addToast({
+      title: "Downloading Files",
+      description: `Starting downloads for ${filesToDownload.length} files...`,
+      color: "primary",
+    });
+
+    for (const file of filesToDownload) {
+      try {
+        let downloadUrl = file.fileUrl;
+        if (file.type.startsWith("image/")) {
+          downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
+        }
+        
+        const response = await fetch(downloadUrl);
+        if (!response.ok) throw new Error("Failed");
+        
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      } catch (e) {
+        console.error("Failed to download", file.name, e);
+      }
+    }
+    
+    addToast({
+      title: "Downloads Started",
+      description: `Completed processing files`,
+      color: "success",
+    });
+    clearSelection();
+  };
+
   const handleDeleteFile = async (fileId: string) => {
     try {
-      // Store file info before deletion for the toast message
-      const fileToDelete = files.find((f) => f.id === fileId);
-      const fileName = fileToDelete?.name || "File";
-
-      // Send delete request
-      const response = await axios.delete(`/api/files/${fileId}/delete`);
-
-      if (response.data.success) {
+      const response = await axios.delete(`/api/files/${fileId}`);
+      if (response.status === 200) {
         // Remove file from local state
         setFiles(files.filter((file) => file.id !== fileId));
 
-        // Show success toast
+        // Show toast
         addToast({
-          title: "File Permanently Deleted",
-          description: `"${fileName}" has been permanently removed`,
+          title: "File Deleted",
+          description: `"${selectedFile?.name}" has been permanently deleted`,
           color: "success",
         });
 
@@ -223,82 +460,38 @@ export default function FileList({
     }
   };
 
-  // Add this function to handle file downloads
   const handleDownloadFile = async (file: FileType) => {
     try {
-      // Show loading toast
-      const loadingToastId = addToast({
+      addToast({
         title: "Preparing Download",
         description: `Getting "${file.name}" ready for download...`,
         color: "primary",
       });
 
-      // For images, we can use the ImageKit URL directly with optimized settings
+      let downloadUrl = file.fileUrl;
       if (file.type.startsWith("image/")) {
-        // Create a download-optimized URL with ImageKit
-        // Using high quality and original dimensions for downloads
-        const downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
-
-        // Fetch the image first to ensure it's available
-        const response = await fetch(downloadUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to download image: ${response.statusText}`);
-        }
-
-        // Get the blob data
-        const blob = await response.blob();
-
-        // Create a download link
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = file.name;
-        document.body.appendChild(link);
-
-        // Remove loading toast and show success toast
-        addToast({
-          title: "Download Ready",
-          description: `"${file.name}" is ready to download.`,
-          color: "success",
-        });
-
-        // Trigger download
-        link.click();
-
-        // Clean up
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-      } else {
-        // For other file types, use the fileUrl directly
-        const response = await fetch(file.fileUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to download file: ${response.statusText}`);
-        }
-
-        // Get the blob data
-        const blob = await response.blob();
-
-        // Create a download link
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = file.name;
-        document.body.appendChild(link);
-
-        // Remove loading toast and show success toast
-        addToast({
-          title: "Download Ready",
-          description: `"${file.name}" is ready to download.`,
-          color: "success",
-        });
-
-        // Trigger download
-        link.click();
-
-        // Clean up
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
+        downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
       }
+
+      const response = await fetch(downloadUrl);
+      if (!response.ok) throw new Error(`Failed to download file`);
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = file.name;
+      document.body.appendChild(link);
+
+      addToast({
+        title: "Download Ready",
+        description: `"${file.name}" is ready to download.`,
+        color: "success",
+      });
+
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error("Error downloading file:", error);
       addToast({
@@ -309,232 +502,299 @@ export default function FileList({
     }
   };
 
-  // Function to open image in a new tab with optimized view
-  const openImageViewer = (file: FileType) => {
-    if (file.type.startsWith("image/")) {
-      // Create an optimized URL with ImageKit transformations for viewing
-      // Using higher quality and responsive sizing for better viewing experience
-      const optimizedUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200,fo-auto/${file.path}`;
-      window.open(optimizedUrl, "_blank");
-    }
-  };
-
-  // Navigate to a folder
-  const navigateToFolder = (folderId: string, folderName: string) => {
-    setCurrentFolder(folderId);
-    setFolderPath([...folderPath, { id: folderId, name: folderName }]);
-
-    // Notify parent component about folder change
-    if (onFolderChange) {
-      onFolderChange(folderId);
-    }
-  };
-
-  // Navigate back to parent folder
-  const navigateUp = () => {
-    if (folderPath.length > 0) {
-      const newPath = [...folderPath];
-      newPath.pop();
-      setFolderPath(newPath);
-      const newFolderId =
-        newPath.length > 0 ? newPath[newPath.length - 1].id : null;
-      setCurrentFolder(newFolderId);
-
-      // Notify parent component about folder change
-      if (onFolderChange) {
-        onFolderChange(newFolderId);
-      }
-    }
-  };
-
-  // Navigate to specific folder in path
-  const navigateToPathFolder = (index: number) => {
-    if (index < 0) {
-      setCurrentFolder(null);
-      setFolderPath([]);
-
-      // Notify parent component about folder change
-      if (onFolderChange) {
-        onFolderChange(null);
-      }
-    } else {
-      const newPath = folderPath.slice(0, index + 1);
-      setFolderPath(newPath);
-      const newFolderId = newPath[newPath.length - 1].id;
-      setCurrentFolder(newFolderId);
-
-      // Notify parent component about folder change
-      if (onFolderChange) {
-        onFolderChange(newFolderId);
-      }
-    }
-  };
-
-  // Handle file or folder click
-  const handleItemClick = (file: FileType) => {
-    if (file.isFolder) {
-      navigateToFolder(file.id, file.name);
-    } else if (file.type.startsWith("image/")) {
-      openImageViewer(file);
-    }
-  };
-
   if (loading) {
-    return <FileLoadingState />;
+    return (
+      <div className="flex flex-col gap-4 py-8 items-center justify-center">
+        <div className="w-8 h-8 border-2 border-stone-200 border-t-[#615FFF] rounded-full animate-spin" />
+        <span className="text-xs font-mono text-stone-400">Loading files...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Tabs for filtering files */}
-      <FileTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        files={files}
-        starredCount={starredCount}
-        trashCount={trashCount}
-      />
-
-      {/* Folder navigation */}
-      {activeTab === "all" && (
-        <FolderNavigation
-          folderPath={folderPath}
-          navigateUp={navigateUp}
-          navigateToPathFolder={navigateToPathFolder}
+    <div className="space-y-4">
+      {selectedFileIds.size > 0 ? (
+        <div className="flex justify-between items-center border-b border-stone-100 w-full py-2.5 h-[52px]">
+          <div className="flex items-center gap-3 text-stone-700 font-mono text-[10px] font-bold uppercase tracking-wider">
+            <span>{selectedFileIds.size} Selected</span>
+            <button
+              onClick={clearSelection}
+              className="text-[#615FFF] hover:text-[#4F4DDF] font-bold transition-colors cursor-pointer select-none"
+            >
+              Clear
+            </button>
+            <button
+              onClick={selectAll}
+              className="text-stone-400 hover:text-stone-600 font-bold transition-colors cursor-pointer select-none"
+            >
+              Select All
+            </button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBulkStar}
+              className="bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
+            >
+              <Star className="h-3 w-3 text-stone-500" />
+              Star
+            </button>
+            <button
+              onClick={handleBulkDownload}
+              className="bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
+            >
+              <svg className="w-3 h-3 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              className="bg-red-50 hover:bg-red-100 border border-red-100 text-red-700 font-mono uppercase text-[9px] font-bold tracking-wider rounded-lg h-7 px-2.5 flex items-center gap-1 transition-colors cursor-pointer select-none"
+            >
+              <Trash className="h-3 w-3" />
+              {activeTab === "trash" ? "Delete" : "Trash"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Tabs for filtering files */
+        <FileTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          files={files}
+          starredCount={starredCount}
+          trashCount={trashCount}
+          onEmptyTrash={() => setEmptyTrashModalOpen(true)}
         />
       )}
 
-      {/* Action buttons */}
-      <FileActionButtons
-        activeTab={activeTab}
-        trashCount={trashCount}
-        folderPath={folderPath}
-        onRefresh={fetchFiles}
-        onEmptyTrash={() => setEmptyTrashModalOpen(true)}
-      />
-
-      <Divider className="my-4" />
-
-      {/* Files table */}
+      {/* Files Grid */}
       {filteredFiles.length === 0 ? (
         <FileEmptyState activeTab={activeTab} />
       ) : (
-        <Card
-          shadow="sm"
-          className="border border-stone-200 bg-white rounded-2xl overflow-hidden"
-        >
-          <div className="overflow-x-auto">
-            <Table
-              aria-label="Files table"
-              isStriped
-              color="default"
-              selectionMode="none"
-              classNames={{
-                base: "min-w-full",
-                th: "bg-stone-50 border-b border-stone-100 text-stone-600 font-mono uppercase text-[10px] font-bold tracking-wider py-4",
-                td: "py-4 border-b border-stone-50 text-sm text-stone-700",
-              }}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {filteredFiles.map((file, index) => (
+            <div
+              key={file.id}
+              onClick={() => setLightboxIndex(index)}
+              className={`relative w-full pb-[100%] h-0 rounded-xl overflow-hidden border cursor-pointer transition-all duration-300 ${
+                selectedFileIds.has(file.id)
+                  ? 'border-[#615FFF] ring-2 ring-[#615FFF]/20 bg-[#615FFF]/5'
+                  : 'border-stone-200 bg-stone-50 hover:shadow-md group'
+              }`}
             >
-              <TableHeader>
-                <TableColumn>Name</TableColumn>
-                <TableColumn className="hidden sm:table-cell">Type</TableColumn>
-                <TableColumn className="hidden md:table-cell">Size</TableColumn>
-                <TableColumn className="hidden sm:table-cell">
-                  Added
-                </TableColumn>
-                <TableColumn width={240}>Actions</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {filteredFiles.map((file) => (
-                  <TableRow
-                    key={file.id}
-                    className={`hover:bg-stone-50 transition-colors ${
-                      file.isFolder || file.type.startsWith("image/")
-                        ? "cursor-pointer"
-                        : ""
-                    }`}
-                    onClick={() => handleItemClick(file)}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <FileIcon file={file} />
-                        <div>
-                          <div className="font-medium flex items-center gap-2 text-default-800">
-                            <span className="truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px]">
-                              {file.name}
-                            </span>
-                            {file.isStarred && (
-                              <Tooltip content="Starred">
-                                <Star
-                                  className="h-4 w-4 text-yellow-400"
-                                  fill="currentColor"
-                                />
-                              </Tooltip>
-                            )}
-                            {file.isFolder && (
-                              <Tooltip content="Folder">
-                                <Folder className="h-3 w-3 text-default-400" />
-                              </Tooltip>
-                            )}
-                            {file.type.startsWith("image/") && (
-                              <Tooltip content="Click to view image">
-                                <ExternalLink className="h-3 w-3 text-default-400" />
-                              </Tooltip>
-                            )}
-                          </div>
-                          <div className="text-xs text-default-500 sm:hidden">
-                            {formatDistanceToNow(new Date(file.createdAt), {
-                              addSuffix: true,
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <div className="text-xs text-default-500">
-                        {file.isFolder ? "Folder" : file.type}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="text-default-700">
-                        {file.isFolder
-                          ? "-"
-                          : file.size < 1024
-                            ? `${file.size} B`
-                            : file.size < 1024 * 1024
-                              ? `${(file.size / 1024).toFixed(1)} KB`
-                              : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <div>
-                        <div className="text-default-700">
-                          {formatDistanceToNow(new Date(file.createdAt), {
-                            addSuffix: true,
-                          })}
-                        </div>
-                        <div className="text-xs text-default-500 mt-1">
-                          {format(new Date(file.createdAt), "MMMM d, yyyy")}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <FileActions
-                        file={file}
-                        onStar={handleStarFile}
-                        onTrash={handleTrashFile}
-                        onDelete={(file) => {
-                          setSelectedFile(file);
-                          setDeleteModalOpen(true);
-                        }}
-                        onDownload={handleDownloadFile}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              {/* Select Checkbox */}
+              <div 
+                onClick={(e) => toggleSelectFile(file.id, e)}
+                className={`absolute top-3 left-3 z-30 w-5 h-5 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
+                  selectedFileIds.has(file.id)
+                    ? 'bg-[#615FFF] border-[#615FFF] text-white shadow-sm'
+                    : 'bg-white/80 border-stone-300 opacity-0 group-hover:opacity-100 hover:bg-white text-transparent'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+
+              {file.type.startsWith("image/") ? (
+                <img
+                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${file.path}`}
+                  alt={file.name}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : file.type.startsWith("video/") ? (
+                <div className="absolute inset-0 w-full h-full bg-stone-900 overflow-hidden">
+                  <video
+                    src={file.fileUrl}
+                    preload="metadata"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-80"
+                    muted
+                    playsInline
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="p-2.5 bg-stone-900/80 rounded-full border border-stone-850 text-white shadow-md transition-transform group-hover:scale-110">
+                      <svg className="w-4 h-4 fill-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <FileIllustration type={file.type} name={file.name} />
+              )}
+              
+              {/* Hover overlay with Actions */}
+              <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3 text-white z-20">
+                <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                  <Dropdown placement="bottom-end">
+                    <DropdownTrigger>
+                      <button
+                        className="p-1 bg-stone-900/80 hover:bg-stone-950 rounded-lg transition-colors border border-stone-850 text-white focus:outline-none cursor-pointer flex items-center justify-center"
+                      >
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="File actions"
+                      onAction={(key) => {
+                        if (key === "star") handleStarFile(file.id);
+                        else if (key === "download") handleDownloadFile(file);
+                        else if (key === "delete") {
+                          if (activeTab === "trash") {
+                            setSelectedFile(file);
+                            setDeleteModalOpen(true);
+                          } else {
+                            handleTrashFile(file.id);
+                          }
+                        }
+                      }}
+                      classNames={{
+                        base: "font-mono uppercase text-[10px]",
+                      }}
+                    >
+                      <DropdownItem
+                        key="star"
+                        startContent={<Star className={`h-3.5 w-3.5 ${file.isStarred ? 'text-yellow-400 fill-yellow-400' : 'text-stone-400'}`} />}
+                      >
+                        {file.isStarred ? "Unstar File" : "Star File"}
+                      </DropdownItem>
+                      <DropdownItem
+                        key="download"
+                        startContent={
+                          <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        }
+                      >
+                        Download
+                      </DropdownItem>
+                      <DropdownItem
+                        key="delete"
+                        className="text-danger"
+                        color="danger"
+                        startContent={<Trash className="h-3.5 w-3.5" />}
+                      >
+                        {activeTab === "trash" ? "Delete Permanently" : "Move to Trash"}
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+                
+                <div className="text-left pointer-events-none">
+                  <p className="text-xs font-mono font-bold truncate">{file.name}</p>
+                  <p className="text-[10px] text-stone-300 font-mono mt-0.5">
+                    {file.size < 1024
+                      ? `${file.size} B`
+                      : file.size < 1024 * 1024
+                        ? `${(file.size / 1024).toFixed(1)} KB`
+                        : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Lightbox / Expanded View */}
+      {lightboxIndex !== null && filteredFiles[lightboxIndex] && (
+        <div className="fixed inset-0 bg-stone-950/95 z-[999] flex flex-col justify-between p-4 md:p-8 backdrop-blur-sm select-none">
+          {/* Top Bar */}
+          <div className="flex justify-between items-center text-white">
+            <div className="text-left">
+              <h3 className="text-sm font-mono font-bold truncate max-w-[200px] sm:max-w-md">
+                {filteredFiles[lightboxIndex].name}
+              </h3>
+              <p className="text-xs text-stone-400 font-mono mt-0.5">
+                {lightboxIndex + 1} of {filteredFiles.length}
+              </p>
+            </div>
+            
+            <button
+              onClick={() => setLightboxIndex(null)}
+              className="p-2 bg-stone-900 hover:bg-stone-850 rounded-full border border-stone-800 transition-colors cursor-pointer text-white focus:outline-none"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-        </Card>
+
+          {/* Main Showcase Area */}
+          <div className="flex-grow flex items-center justify-between gap-4 py-4 relative">
+            {/* Previous Button */}
+            <button
+              onClick={() =>
+                setLightboxIndex((prev) =>
+                  prev !== null && prev > 0 ? prev - 1 : filteredFiles.length - 1
+                )
+              }
+              className="absolute left-2 md:left-4 z-10 p-3 bg-stone-900/60 hover:bg-stone-900 border border-stone-800/50 rounded-full text-white transition-colors cursor-pointer focus:outline-none"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Expanded Content */}
+            <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4">
+              {filteredFiles[lightboxIndex].type.startsWith("image/") ? (
+                <img
+                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200,fo-auto/${filteredFiles[lightboxIndex].path}`}
+                  alt={filteredFiles[lightboxIndex].name}
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                />
+              ) : filteredFiles[lightboxIndex].type.startsWith("video/") ? (
+                <video
+                  src={filteredFiles[lightboxIndex].fileUrl}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-full rounded-lg shadow-2xl"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-8 bg-stone-900 border border-stone-800 rounded-2xl max-w-sm w-full text-center gap-4 shadow-2xl">
+                  <FileIconLarge type={filteredFiles[lightboxIndex].type} name={filteredFiles[lightboxIndex].name} />
+                  <div className="text-center w-full">
+                    <h4 className="text-base font-mono font-bold text-white truncate px-4">{filteredFiles[lightboxIndex].name}</h4>
+                    <p className="text-[10px] text-stone-400 font-mono uppercase tracking-wider mt-1">
+                      {getFriendlyFileType(filteredFiles[lightboxIndex].type, filteredFiles[lightboxIndex].name)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDownloadFile(filteredFiles[lightboxIndex])}
+                    className="w-full py-2.5 bg-[#615FFF] hover:bg-[#4F4DDF] text-white rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Download File
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={() =>
+                setLightboxIndex((prev) =>
+                  prev !== null && prev < filteredFiles.length - 1 ? prev + 1 : 0
+                )
+              }
+              className="absolute right-2 md:right-4 z-10 p-3 bg-stone-900/60 hover:bg-stone-900 border border-stone-800/50 rounded-full text-white transition-colors cursor-pointer focus:outline-none"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Bottom Bar Details */}
+          <div className="text-center text-stone-500 font-mono text-xs">
+            Size:{" "}
+            {filteredFiles[lightboxIndex].size < 1024
+              ? `${filteredFiles[lightboxIndex].size} B`
+              : filteredFiles[lightboxIndex].size < 1024 * 1024
+                ? `${(filteredFiles[lightboxIndex].size / 1024).toFixed(1)} KB`
+                : `${(filteredFiles[lightboxIndex].size / (1024 * 1024)).toFixed(1)} MB`}
+          </div>
+        </div>
       )}
 
       {/* Delete confirmation modal */}
@@ -542,18 +802,18 @@ export default function FileList({
         isOpen={deleteModalOpen}
         onOpenChange={setDeleteModalOpen}
         title="Confirm Permanent Deletion"
-        description={`Are you sure you want to permanently delete this file?`}
+        description={selectedFileIds.size > 0 ? `Are you sure you want to permanently delete these ${selectedFileIds.size} files?` : `Are you sure you want to permanently delete this file?`}
         icon={X}
         iconColor="text-danger"
         confirmText="Delete Permanently"
         confirmColor="danger"
-        onConfirm={() => {
-          if (selectedFile) {
-            handleDeleteFile(selectedFile.id);
-          }
-        }}
+        onConfirm={handleConfirmDelete}
         isDangerous={true}
-        warningMessage={`You are about to permanently delete "${selectedFile?.name}". This file will be permanently removed from your account and cannot be recovered.`}
+        warningMessage={
+          selectedFileIds.size > 0
+            ? `You are about to permanently delete ${selectedFileIds.size} items. These files will be permanently removed from your account and cannot be recovered.`
+            : `You are about to permanently delete "${selectedFile?.name}". This file will be permanently removed from your account and cannot be recovered.`
+        }
       />
 
       {/* Empty trash confirmation modal */}
