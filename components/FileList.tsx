@@ -607,14 +607,14 @@ export default function FileList({
                 <img
                   src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${file.path}`}
                   alt={file.name}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : file.type.startsWith("video/") ? (
                 <div className="absolute inset-0 w-full h-full bg-stone-900 overflow-hidden">
                   <video
                     src={file.fileUrl}
                     preload="metadata"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-80"
+                    className="w-full h-full object-cover opacity-80"
                     muted
                     playsInline
                   />
