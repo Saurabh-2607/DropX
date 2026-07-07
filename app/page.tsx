@@ -77,7 +77,7 @@ export default function Home() {
           alt="Scenic mountain landscape"
           className="absolute inset-0 w-full h-full object-cover"
         />
-          <img src="/demo.png" alt="demoimage" className="relative z-10 w-full mx-24 mt-120 rounded-xl overflow-hidden border-stone-200 />
+          <img src="/demo.png" alt="demoimage" className="relative z-10 w-full mx-24 mt-120 rounded-xl overflow-hidden border-stone-200" />
       </div>
 
       {/* 3-Column Top Feature Grids */}
