@@ -752,7 +752,7 @@ export default function FileList({
             <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4">
               {filteredFiles[lightboxIndex].type.startsWith("image/") ? (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200,fo-auto/${filteredFiles[lightboxIndex].path}`}
+                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200/${filteredFiles[lightboxIndex].path}`}
                   alt={filteredFiles[lightboxIndex].name}
                   className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                 />

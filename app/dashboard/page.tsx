@@ -24,8 +24,8 @@ export default async function Dashboard() {
     : null;
 
   return (
-    <div className="bg-stone-50 text-stone-800 selection:bg-indigo-500 selection:text-white px-4 md:px-6">
-      <main className="max-w-6xl w-full mx-auto pt-6 pb-12">
+    <div className="bg-stone-50 text-stone-800 selection:bg-indigo-500 selection:text-white w-full flex justify-center flex-grow">
+      <main className="max-w-6xl w-full px-4 md:px-6 pt-6 pb-12">
         <DashboardContent
           userId={userId}
           userName={
