@@ -3,6 +3,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "./providers";
 import "./globals.css";
 import { Instrument_Serif, Geist, Geist_Mono } from "next/font/google";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const fontSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -37,7 +39,15 @@ export default function RootLayout({
         <body
           className={`${fontSans.variable} ${fontMono.variable} ${fontSerif.variable} ${fontSans.className} antialiased bg-[#fafaf9] text-[#292524] overflow-x-hidden`}
         >
-          <Providers>{children}</Providers>
+          <Providers>
+            <div className="min-h-screen flex flex-col justify-between">
+              <Navbar />
+              <div className="flex-grow w-full flex flex-col">
+                {children}
+              </div>
+              <Footer />
+            </div>
+          </Providers>
         </body>
       </html>
     </ClerkProvider>

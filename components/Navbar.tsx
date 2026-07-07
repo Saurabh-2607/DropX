@@ -73,7 +73,7 @@ export default function Navbar({ user }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 w-full backdrop-blur-lg z-50 flex justify-center bg-stone-50/80 border-b border-stone-200/50">
+    <header className="sticky top-0 w-full backdrop-blur-lg z-50 flex justify-center">
       <div className="max-w-6xl w-full">
         <div className={`gap-4 flex items-center h-14 w-full py-1 px-4 md:px-6 ${
           isSignedIn 
@@ -83,11 +83,8 @@ export default function Navbar({ user }: NavbarProps) {
           
           {/* Left: Brand Logo & Icon */}
           <Link href="/" className="flex items-center gap-2 group w-fit hover:opacity-70">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-stone-800">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14 13-2-3-2 3" vectorEffect="non-scaling-stroke"></path>
-              <path stroke="currentColor" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M16 22s-3-6-6-9"></path>
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" vectorEffect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 71 72" fill="currentColor" className="text-stone-800">
+              <path fillRule="evenodd" clipRule="evenodd" d="M25.0753 25.4554C19.9752 22.6862 14.313 20.4515 9.32073 20.4515C-3.16641 20.4515 -3.04727 51.3383 9.32073 51.3383C14.2772 51.3383 19.894 49.1355 24.9654 46.3939C22.2207 51.4684 20.0144 57.0903 20.0144 62.0507C20.0144 74.4187 50.9012 74.5378 50.9012 62.0507C50.9012 57.0856 48.6908 51.4578 45.9425 46.3795C51.0208 49.1278 56.6486 51.3383 61.6137 51.3383C73.9817 51.3383 74.1008 20.4515 61.6137 20.4515C56.6935 20.4515 51.1227 22.622 46.0806 25.3357C48.8055 20.2818 50.989 14.6925 50.989 9.75775C50.989 -2.61026 20.1022 -2.72939 20.1022 9.75775C20.1022 14.7315 22.3203 20.3702 25.0753 25.4554Z" stroke="currentColor" strokeWidth="1" />
             </svg>
             <span className="font-mono text-sm font-semibold tracking-[0.08em] text-stone-800 uppercase">
               DROPX
@@ -137,8 +134,8 @@ export default function Navbar({ user }: NavbarProps) {
           <div className="flex gap-2 lg:gap-4 justify-end items-center flex-1 lg:w-full">
             {(!isLoaded || !isSignedIn) ? (
               <>
-                <Button variant="secondary" href="/dashboard">Log in</Button>
-                <Button variant="primary" href="/dashboard">Sign up</Button>
+                <Button variant="secondary" href="/sign-in">Log in</Button>
+                <Button variant="primary" href="/sign-up">Sign up</Button>
               </>
             ) : (
               <div className="flex items-center gap-3">

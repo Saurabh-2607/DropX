@@ -10,7 +10,6 @@ import {
   Shield,
   Trash2,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/Button";
 
 export default function Home() {
@@ -20,13 +19,8 @@ export default function Home() {
   const [storageUsed, setStorageUsed] = useState(2.3);
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-800 font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Sticky Header */}
-      <Navbar />
+    <div className="text-stone-800 font-sans selection:bg-indigo-500 selection:text-white max-w-6xl w-full mx-auto px-4 md:px-6 pb-10">
 
-      {/* Hero Outer Wrapper */}
-      <div className="max-w-6xl w-full mx-auto px-4 md:px-6 pb-10">
-        
         {/* Eyebrow Label Pill */}
         <div className="flex flex-col items-center gap-10 pt-24 pb-10 md:pb-20 text-center">
           <a
@@ -61,7 +55,7 @@ export default function Home() {
               <Button variant="secondary" href="#features" size="lg">
                 View interactive demo
               </Button>
-              <Button variant="primary" href="/dashboard" size="lg">
+              <Button variant="primary" href="/sign-up" size="lg">
                 Get Started Free
               </Button>
             </SignedOut>
@@ -78,9 +72,9 @@ export default function Home() {
 
         {/* Banner with Mountain Background Only */}
         <div className="relative border-x border-t border-stone-200 overflow-hidden h-[300px] md:h-[400px] bg-stone-100">
-          <img 
-            src="/bg-mountains.jpg" 
-            alt="Scenic mountain landscape" 
+          <img
+            src="/bg-mountains.jpg"
+            alt="Scenic mountain landscape"
             className="w-full h-full object-cover"
           />
         </div>
@@ -181,7 +175,7 @@ export default function Home() {
         </div>
 
         {/* Credibility Stats Bar */}
-        <div className="my-10 md:my-20 border-x border-stone-200">
+        {/* <div className="my-10 md:my-20 border-x border-stone-200">
           <div className="grid grid-cols-2 md:grid-cols-4 border-b border-t border-stone-200">
             <div className="flex flex-col justify-center gap-2 px-4 sm:px-6 py-6 border-stone-200 odd:border-r [&:nth-child(-n+2)]:border-b md:[&:nth-child(-n+2)]:border-b-0 md:[&:nth-child(-n+3)]:border-r">
               <p className="text-stone-800 font-normal text-2xl font-datatype text-center">15,402,890</p>
@@ -215,7 +209,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Greyscale Logo Strip */}
+          
           <div className="grid border-b border-stone-200 overflow-hidden h-auto">
             <div className="grid grid-cols-2 sm:grid-cols-4 items-center justify-items-center py-6 px-4 divide-x divide-stone-200/50">
               <img
@@ -252,12 +246,12 @@ export default function Home() {
               />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* INTERACTIVE PRODUCT SHOWCASE SECTION */}
         <section id="features" className="flex my-10 md:my-20 flex-col gap-20">
           <div className="flex flex-col border-x border-t border-b-0 md:border-b border-stone-200">
-            
+
             {/* Title Bar */}
             <div className="grid grid-cols-1 md:grid-cols-2 border-b gap-4 border-stone-200 px-4 md:px-6 py-6 bg-white">
               <div className="flex flex-col gap-2 md:gap-4">
@@ -272,11 +266,11 @@ export default function Home() {
 
             {/* Split Screen interactive view */}
             <div className="hidden md:grid md:grid-cols-2 md:h-[520px] md:overflow-hidden bg-white">
-              
+
               {/* Left Column: Tab list */}
               <div className="md:border-r border-stone-200 flex flex-col justify-stretch">
                 <div className="flex divide-y divide-stone-200 flex-col h-full">
-                  
+
                   {/* Tab 1 */}
                   <button
                     type="button"
@@ -379,7 +373,7 @@ export default function Home() {
               {/* Right Column: Interactive Mockup Canvas */}
               <div className="relative overflow-hidden bg-stone-100 flex items-center justify-center p-6">
                 <div className="bg-white rounded-lg shadow-xl overflow-hidden w-full h-full flex flex-col border border-stone-200">
-                  
+
                   {/* Header bar */}
                   <div className="flex items-center gap-1.5 bg-stone-100 px-3 py-2.5 border-b border-stone-200 shrink-0">
                     <span className="w-3 h-3 rounded-full bg-red-400"></span>
@@ -409,7 +403,7 @@ export default function Home() {
                             </div>
                             <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">Stored</span>
                           </div>
-                          
+
                           <div className="flex items-center justify-between p-3 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded overflow-hidden bg-stone-200 border border-stone-200 shrink-0">
@@ -446,14 +440,13 @@ export default function Home() {
                           <span className="text-xs text-stone-400 font-mono">Active: {activeFilter}</span>
                         </div>
                         <div className="flex-1 min-h-[160px] bg-stone-100 rounded-lg overflow-hidden border border-stone-200 relative flex items-center justify-center">
-                          <img 
-                            src="/bg-mountains.jpg" 
-                            alt="Filter preview" 
-                            className={`w-full h-full object-cover transition-all duration-300 ${
-                              activeFilter === "grayscale" ? "grayscale" : 
-                              activeFilter === "blur" ? "blur-[2px]" : 
-                              activeFilter === "sepia" ? "sepia" : ""
-                            }`} 
+                          <img
+                            src="/bg-mountains.jpg"
+                            alt="Filter preview"
+                            className={`w-full h-full object-cover transition-all duration-300 ${activeFilter === "grayscale" ? "grayscale" :
+                              activeFilter === "blur" ? "blur-[2px]" :
+                                activeFilter === "sepia" ? "sepia" : ""
+                              }`}
                           />
                         </div>
                         <div className="grid grid-cols-4 gap-1.5 pt-1">
@@ -462,11 +455,10 @@ export default function Home() {
                               key={filter}
                               type="button"
                               onClick={() => setActiveFilter(filter)}
-                              className={`py-1.5 rounded border text-[10px] font-mono uppercase font-semibold transition-all ${
-                                activeFilter === filter 
-                                  ? "bg-stone-900 border-stone-900 text-white" 
-                                  : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
-                              }`}
+                              className={`py-1.5 rounded border text-[10px] font-mono uppercase font-semibold transition-all ${activeFilter === filter
+                                ? "bg-stone-900 border-stone-900 text-white"
+                                : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                                }`}
                             >
                               {filter}
                             </button>
@@ -481,15 +473,15 @@ export default function Home() {
                           <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">Workspace Limits</h3>
                           <p className="text-stone-400 text-xs mt-1">Manage storage limits for your active space.</p>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs font-mono">
                             <span className="text-stone-600">Storage Used</span>
                             <span className="text-stone-800 font-bold">{storageUsed.toFixed(1)} GB / 5.0 GB</span>
                           </div>
                           <div className="w-full bg-stone-100 rounded-full h-3 overflow-hidden border border-stone-200">
-                            <div 
-                              className="bg-[#615FFF] h-full transition-all duration-500 rounded-full" 
+                            <div
+                              className="bg-[#615FFF] h-full transition-all duration-500 rounded-full"
                               style={{ width: `${(storageUsed / 5.0) * 100}%` }}
                             />
                           </div>
@@ -572,7 +564,7 @@ export default function Home() {
                         {tab === "settings" && "Track storage volume or customize team folders for client projects."}
                         {tab === "activity" && "Review file history, access logs, and team changes as they happen."}
                       </p>
-                      
+
                       {/* Mobile mockup detail renders */}
                       <div className="border border-stone-200 rounded-lg p-3 bg-stone-50">
                         {tab === "files" && (
@@ -591,14 +583,13 @@ export default function Home() {
                         {tab === "filters" && (
                           <div className="space-y-3">
                             <div className="w-full h-32 rounded bg-stone-200 overflow-hidden relative">
-                              <img 
-                                src="/bg-mountains.jpg" 
-                                className={`w-full h-full object-cover ${
-                                  activeFilter === "grayscale" ? "grayscale" : 
-                                  activeFilter === "blur" ? "blur-[2px]" : 
-                                  activeFilter === "sepia" ? "sepia" : ""
-                                }`} 
-                                alt="mobile filter" 
+                              <img
+                                src="/bg-mountains.jpg"
+                                className={`w-full h-full object-cover ${activeFilter === "grayscale" ? "grayscale" :
+                                  activeFilter === "blur" ? "blur-[2px]" :
+                                    activeFilter === "sepia" ? "sepia" : ""
+                                  }`}
+                                alt="mobile filter"
                               />
                             </div>
                             <div className="grid grid-cols-4 gap-1">
@@ -607,9 +598,8 @@ export default function Home() {
                                   key={filter}
                                   type="button"
                                   onClick={() => setActiveFilter(filter)}
-                                  className={`py-1 rounded text-[9px] font-mono uppercase ${
-                                    activeFilter === filter ? "bg-stone-900 text-white" : "bg-white border text-stone-500"
-                                  }`}
+                                  className={`py-1 rounded text-[9px] font-mono uppercase ${activeFilter === filter ? "bg-stone-900 text-white" : "bg-white border text-stone-500"
+                                    }`}
                                 >
                                   {filter}
                                 </button>
@@ -625,13 +615,13 @@ export default function Home() {
                               <span>{storageUsed.toFixed(1)} GB / 5.0 GB</span>
                             </div>
                             <div className="flex gap-1.5">
-                              <button 
+                              <button
                                 onClick={() => setStorageUsed(2.3)}
                                 className="flex-1 py-1 text-[10px] font-mono uppercase bg-white border rounded"
                               >
                                 Reset
                               </button>
-                              <button 
+                              <button
                                 onClick={() => setStorageUsed(0)}
                                 className="flex-1 py-1 text-[10px] font-mono uppercase bg-red-50 text-red-600 border border-red-100 rounded"
                               >
@@ -680,7 +670,7 @@ export default function Home() {
         {/* MULTIPLE PROJECTS ROW SECTION */}
         <section className="my-10 md:my-20 border border-stone-200 rounded-lg overflow-hidden bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            
+
             {/* Left side text */}
             <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-16 bg-white border-b md:border-b-0 md:border-r border-stone-200">
               <span className="text-rose-500 font-medium text-xs uppercase font-mono tracking-wider block mb-4">
@@ -708,7 +698,7 @@ export default function Home() {
             <div className="relative h-64 md:h-auto min-h-[300px] overflow-hidden">
               <img src="/bg-mountains.jpg" alt="Mountains" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-stone-950/20" />
-              
+
               {/* project sidebar card wrapper mock */}
               <div className="absolute inset-0 flex items-center justify-center p-6">
                 <div className="w-72 bg-white border border-stone-200 rounded-lg shadow-xl overflow-hidden p-3 font-mono">
@@ -736,27 +726,6 @@ export default function Home() {
 
           </div>
         </section>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-stone-200 mt-8 py-6 bg-white">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-stone-800">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 13-2-3-2 3" vector-effect="non-scaling-stroke"></path>
-              <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M14.5 5.5C14.5 8 12 10 12 10S9.5 8 9.5 5.5 10.62 2 12 2s2.5 1 2.5 3.5ZM18.5 15.5C16 15.5 14 13 14 13s2-2.5 4.5-2.5S22 11.62 22 13s-1 2.5-3.5 2.5ZM5.5 15.5C8 15.5 10 13 10 13s-2-2.5-4.5-2.5S2 11.62 2 13s1 2.5 3.5 2.5Z"></path>
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 22s-3-6-6-9" vector-effect="non-scaling-stroke"></path>
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" vector-effect="non-scaling-stroke" d="M8 22s3-6 6-9"></path>
-            </svg>
-            <span className="font-mono text-xs font-semibold tracking-[0.08em] text-stone-800 uppercase">
-              DROPX
-            </span>
-          </div>
-          <p className="text-[10px] font-mono text-stone-400">
-            &copy; {new Date().getFullYear()} DropX. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
