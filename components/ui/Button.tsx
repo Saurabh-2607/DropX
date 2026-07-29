@@ -2,7 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "charcoal";
   size?: "sm" | "md" | "lg" | "responsive" | "form";
   href?: string;
@@ -11,7 +12,20 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 export const Button = React.forwardRef<any, ButtonProps>(
-  ({ className, variant = "primary", size = "responsive", href, external, isLoading, disabled, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      size = "responsive",
+      href,
+      external,
+      isLoading,
+      disabled,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     const baseStyles =
       "cursor-pointer box-border flex items-center justify-center font-semibold font-mono uppercase border transition-all ease-in duration-75 whitespace-nowrap text-center select-none disabled:shadow-none disabled:opacity-50 disabled:cursor-not-allowed gap-x-2 active:shadow-none active:scale-95";
 
@@ -38,7 +52,7 @@ export const Button = React.forwardRef<any, ButtonProps>(
       variantStyles[variant],
       sizeStyles[size],
       isLoading && "opacity-75 cursor-not-allowed",
-      className
+      className,
     );
 
     if (href && !isLoading) {
@@ -57,26 +71,52 @@ export const Button = React.forwardRef<any, ButtonProps>(
         );
       }
       return (
-        <Link href={href} className={combinedClassName} ref={ref} translate="no">
+        <Link
+          href={href}
+          className={combinedClassName}
+          ref={ref}
+          translate="no"
+        >
           <div className="flex items-center gap-x-2">{children}</div>
         </Link>
       );
     }
 
     return (
-      <button className={combinedClassName} ref={ref} disabled={disabled || isLoading} {...props}>
+      <button
+        className={combinedClassName}
+        ref={ref}
+        disabled={disabled || isLoading}
+        {...props}
+      >
         <div className="flex items-center gap-x-2">
           {isLoading && (
-            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="animate-spin -ml-1 mr-2 h-4 w-4 text-current"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           )}
           {children}
         </div>
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

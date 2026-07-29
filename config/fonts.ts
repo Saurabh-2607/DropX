@@ -1,4 +1,8 @@
-import { Instrument_Serif as FontSerif, Geist as FontSans, Geist_Mono as FontMono } from "next/font/google";
+import {
+  Instrument_Serif as FontSerif,
+  Geist as FontSans,
+  Geist_Mono as FontMono,
+} from "next/font/google";
 
 export const fontSans = FontSans({
   subsets: ["latin"],

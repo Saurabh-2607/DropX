@@ -45,6 +45,8 @@
     "no-unused-vars": "off",
     "unused-imports/no-unused-vars": "off",
     "unused-imports/no-unused-imports": "warn",
+    "react/no-unescaped-entities": "off",
+    "jsx-a11y/no-autofocus": "off",
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {
@@ -100,7 +102,6 @@
       { "blankLine": "always", "prev": "directive", "next": "*" },
       { "blankLine": "always", "prev": "block-like", "next": "*" },
       { "blankLine": "always", "prev": "*", "next": "function" },
-      { "blankLine": "always", "prev": "*", "next": "function-expression" },
       { "blankLine": "always", "prev": "*", "next": "block-like" },
       { "blankLine": "always", "prev": "import", "next": "*" },
       { "blankLine": "any", "prev": "import", "next": "import" },

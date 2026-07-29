@@ -23,8 +23,18 @@ const FileTypeIcon = ({ name }: { name: string }) => {
   const extension = name.split(".").pop()?.toUpperCase() || "FILE";
   return (
     <div className="relative w-10 h-10 bg-white border border-stone-200 rounded flex items-center justify-center overflow-hidden shrink-0">
-      <svg className="w-5 h-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      <svg
+        className="w-5 h-5 text-stone-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+        />
       </svg>
       <div className="absolute bottom-0 right-0 left-0 bg-stone-50 text-[8px] font-mono text-stone-500 font-bold uppercase tracking-wider text-center py-0.5 border-t border-stone-200">
         {extension.substring(0, 3)}
@@ -43,7 +53,9 @@ export default function FileUploadForm({
 
   const addFilesToQueue = (files: File[]) => {
     // Sort files by newest to oldest
-    const sortedFiles = [...files].sort((a, b) => b.lastModified - a.lastModified);
+    const sortedFiles = [...files].sort(
+      (a, b) => b.lastModified - a.lastModified,
+    );
     const newItems: QueueItem[] = sortedFiles.map((file) => ({
       id: Math.random().toString(36).substring(7),
       file,
@@ -82,9 +94,14 @@ export default function FileUploadForm({
       setUploadQueue((prev) =>
         prev.map((item) =>
           item.id === itemId
-            ? { ...item, status: "error", error: "File exceeds 5MB limit", progress: 0 }
-            : item
-        )
+            ? {
+                ...item,
+                status: "error",
+                error: "File exceeds 5MB limit",
+                progress: 0,
+              }
+            : item,
+        ),
       );
       addToast({
         title: "File Too Large",
@@ -96,8 +113,8 @@ export default function FileUploadForm({
 
     setUploadQueue((prev) =>
       prev.map((item) =>
-        item.id === itemId ? { ...item, status: "uploading" } : item
-      )
+        item.id === itemId ? { ...item, status: "uploading" } : item,
+      ),
     );
 
     const formData = new FormData();
@@ -115,12 +132,14 @@ export default function FileUploadForm({
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
+              (progressEvent.loaded * 100) / progressEvent.total,
             );
             setUploadQueue((prev) =>
               prev.map((item) =>
-                item.id === itemId ? { ...item, progress: percentCompleted } : item
-              )
+                item.id === itemId
+                  ? { ...item, progress: percentCompleted }
+                  : item,
+              ),
             );
           }
         },
@@ -128,8 +147,10 @@ export default function FileUploadForm({
 
       setUploadQueue((prev) =>
         prev.map((item) =>
-          item.id === itemId ? { ...item, status: "success", progress: 100 } : item
-        )
+          item.id === itemId
+            ? { ...item, status: "success", progress: 100 }
+            : item,
+        ),
       );
 
       // Call success callback
@@ -142,8 +163,8 @@ export default function FileUploadForm({
         prev.map((item) =>
           item.id === itemId
             ? { ...item, status: "error", error: "Upload failed", progress: 0 }
-            : item
-        )
+            : item,
+        ),
       );
       addToast({
         title: "Upload Failed",
@@ -197,7 +218,7 @@ export default function FileUploadForm({
             <div className="w-12 h-1 bg-stone-200 rounded-full" />
             <div className="w-10 h-1 bg-stone-150 rounded-full" />
             <div className="w-6 h-1 bg-stone-100 rounded-full" />
-            
+
             {/* Floating badges */}
             <div className="absolute -bottom-2 -right-4 bg-stone-900 text-white text-[8px] font-bold font-mono px-2 py-0.5 rounded shadow border border-stone-850">
               PDF
@@ -209,7 +230,8 @@ export default function FileUploadForm({
         </div>
 
         <p className="text-stone-700 text-sm font-semibold">
-          Drag & drop files or <span className="text-[#615FFF] hover:underline">browse</span>
+          Drag & drop files or{" "}
+          <span className="text-[#615FFF] hover:underline">browse</span>
         </p>
         <p className="text-xs text-stone-400 mt-2 font-mono leading-relaxed">
           Supports PDF, JSX, ZIP, CSV, MD, images, and more
@@ -261,7 +283,7 @@ export default function FileUploadForm({
                       <p className="text-xs text-stone-400 font-mono mt-0.5">
                         {item.status === "success"
                           ? `${(item.file.size / (1024 * 1024)).toFixed(2)} MB`
-                          : `${((item.file.size * item.progress / 100) / (1024 * 1024)).toFixed(2)} MB of ${(item.file.size / (1024 * 1024)).toFixed(2)} MB`}
+                          : `${((item.file.size * item.progress) / 100 / (1024 * 1024)).toFixed(2)} MB of ${(item.file.size / (1024 * 1024)).toFixed(2)} MB`}
                       </p>
                     </div>
                   </div>

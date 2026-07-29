@@ -31,15 +31,28 @@ const PremiumFileIllustration = () => {
 
       {/* Interactive bouncing action badge on the right */}
       <div className="absolute w-9 h-9 bg-[#615FFF] border border-[#4E4BCC] rounded-xl shadow-lg z-20 translate-x-[20px] translate-y-[12px] flex items-center justify-center text-white transform rotate-12 animate-bounce">
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.5}
+            d="M12 4v16m8-8H4"
+          />
         </svg>
       </div>
     </div>
   );
 };
 
-export default function FileEmptyState({ activeTab, onUploadClick }: FileEmptyStateProps) {
+export default function FileEmptyState({
+  activeTab,
+  onUploadClick,
+}: FileEmptyStateProps) {
   return (
     <div className="text-center py-20 w-full">
       <PremiumFileIllustration />
@@ -66,8 +79,18 @@ export default function FileEmptyState({ activeTab, onUploadClick }: FileEmptySt
           onClick={onUploadClick}
           className="mt-6 mx-auto"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M12 4v16m8-8H4"
+            />
           </svg>
           Upload Files
         </Button>

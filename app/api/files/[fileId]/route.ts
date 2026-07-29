@@ -14,7 +14,7 @@ const imagekit = new ImageKit({
 
 export async function DELETE(
   request: NextRequest,
-  props: { params: Promise<{ fileId: string }> }
+  props: { params: Promise<{ fileId: string }> },
 ) {
   try {
     const { userId } = await auth();
@@ -27,7 +27,7 @@ export async function DELETE(
     if (!fileId) {
       return NextResponse.json(
         { error: "File ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -92,7 +92,7 @@ export async function DELETE(
     console.error("Error deleting file:", error);
     return NextResponse.json(
       { error: "Failed to delete file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

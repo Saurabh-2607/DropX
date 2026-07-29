@@ -6,7 +6,7 @@ import { eq, and } from "drizzle-orm";
 
 export async function PATCH(
   request: NextRequest,
-  props: { params: Promise<{ fileId: string }> }
+  props: { params: Promise<{ fileId: string }> },
 ) {
   try {
     const { userId } = await auth();
@@ -18,7 +18,7 @@ export async function PATCH(
     if (!fileId) {
       return NextResponse.json(
         { error: "File ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +48,7 @@ export async function PATCH(
     console.error("Error updating trash status:", error);
     return NextResponse.json(
       { error: "Failed to update file trash status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

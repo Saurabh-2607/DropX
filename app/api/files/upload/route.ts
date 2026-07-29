@@ -43,14 +43,14 @@ export async function POST(request: NextRequest) {
           and(
             eq(files.id, parentId),
             eq(files.userId, userId),
-            eq(files.isFolder, true)
-          )
+            eq(files.isFolder, true),
+          ),
         );
 
       if (!parentFolder) {
         return NextResponse.json(
           { error: "Parent folder not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
     }
@@ -58,10 +58,16 @@ export async function POST(request: NextRequest) {
     // Normalize file type/mime type with fallbacks
     let fileType = file.type;
     const originalFilename = file.name;
-    const fileExtension = originalFilename.split(".").pop()?.toLowerCase() || "";
+    const fileExtension =
+      originalFilename.split(".").pop()?.toLowerCase() || "";
 
     if (!fileType) {
-      if (fileExtension === "jsx" || fileExtension === "tsx" || fileExtension === "js" || fileExtension === "ts") {
+      if (
+        fileExtension === "jsx" ||
+        fileExtension === "tsx" ||
+        fileExtension === "js" ||
+        fileExtension === "ts"
+      ) {
         fileType = "text/javascript";
       } else if (fileExtension === "zip") {
         fileType = "application/zip";
@@ -116,7 +122,7 @@ export async function POST(request: NextRequest) {
     console.error("Error uploading file:", error);
     return NextResponse.json(
       { error: "Failed to upload file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -14,7 +14,7 @@ const imagekit = new ImageKit({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ fileId: string }> }
+  { params }: { params: Promise<{ fileId: string }> },
 ) {
   try {
     const { fileId } = await params;
@@ -44,7 +44,8 @@ export async function POST(
     const fileBuffer = Buffer.from(buffer);
 
     const originalFilename = file.name || existingFile.name;
-    const fileExtension = originalFilename.split(".").pop()?.toLowerCase() || "";
+    const fileExtension =
+      originalFilename.split(".").pop()?.toLowerCase() || "";
     const uniqueFilename = `${uuidv4()}.${fileExtension}`;
 
     const folderPath = existingFile.parentId
@@ -77,7 +78,7 @@ export async function POST(
     console.error("Error replacing file:", error);
     return NextResponse.json(
       { error: "Failed to replace file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

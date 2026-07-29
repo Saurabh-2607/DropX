@@ -56,9 +56,7 @@ export default async function RootLayout({
           <Providers>
             <div className="min-h-screen flex flex-col justify-between">
               <Navbar user={serializedUser} />
-              <div className="flex-grow w-full flex flex-col">
-                {children}
-              </div>
+              <div className="flex-grow w-full flex flex-col">{children}</div>
               <Footer />
             </div>
           </Providers>

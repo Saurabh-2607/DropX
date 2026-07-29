@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@config "../tailwind.config.js";
+@config "../tailwind.config.mjs";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -50,7 +50,8 @@
   --radius-2xl: 16px;
 
   /* Shadows */
-  --shadow-xl: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
+  --shadow-xl: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
+    rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -131,8 +132,8 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Custom scrollbar for premium aesthetic */
@@ -150,4 +151,3 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #d6d3d1; /* stone-300 */
 }
-

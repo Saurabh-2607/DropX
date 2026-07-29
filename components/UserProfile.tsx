@@ -21,7 +21,9 @@ export default function UserProfile({ onClose }: UserProfileProps) {
     return (
       <div className="flex flex-col justify-center items-center p-12">
         <Spinner size="lg" color="default" className="text-[#615FFF]" />
-        <p className="mt-4 text-stone-500 font-mono text-xs uppercase tracking-wider">Loading your profile...</p>
+        <p className="mt-4 text-stone-500 font-mono text-xs uppercase tracking-wider">
+          Loading your profile...
+        </p>
       </div>
     );
   }
@@ -32,18 +34,29 @@ export default function UserProfile({ onClose }: UserProfileProps) {
         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-4 border-b border-stone-100">
           <div className="flex gap-3 items-center">
             <User className="h-5 w-5 text-[#615FFF]" />
-            <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
+            <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">
+              User Profile
+            </h2>
           </div>
           {onClose && (
-            <button onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer focus:outline-none">
+            <button
+              onClick={onClose}
+              className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer focus:outline-none"
+            >
               <X className="h-5 w-5" />
             </button>
           )}
         </CardHeader>
         <CardBody className="text-center py-10 px-6">
           <div className="mb-6">
-            <Avatar name="Guest" size="lg" className="mx-auto mb-4 bg-stone-100 text-stone-600" />
-            <p className="text-lg font-semibold text-stone-800">Not Signed In</p>
+            <Avatar
+              name="Guest"
+              size="lg"
+              className="mx-auto mb-4 bg-stone-100 text-stone-600"
+            />
+            <p className="text-lg font-semibold text-stone-800">
+              Not Signed In
+            </p>
             <p className="text-stone-500 text-sm mt-2">
               Please sign in to access your profile
             </p>
@@ -85,10 +98,15 @@ export default function UserProfile({ onClose }: UserProfileProps) {
       <CardHeader className="flex justify-between items-center px-6 pt-6 pb-4 border-b border-stone-100">
         <div className="flex gap-3 items-center">
           <User className="h-5 w-5 text-[#615FFF]" />
-          <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">User Profile</h2>
+          <h2 className="text-lg font-bold text-stone-800 font-mono uppercase tracking-wider">
+            User Profile
+          </h2>
         </div>
         {onClose && (
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer focus:outline-none">
+          <button
+            onClick={onClose}
+            className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer focus:outline-none"
+          >
             <X className="h-5 w-5" />
           </button>
         )}
@@ -141,11 +159,13 @@ export default function UserProfile({ onClose }: UserProfileProps) {
               <Mail className="h-4 w-4 text-[#615FFF]/70" />
               <span className="font-medium text-sm">Email Verification</span>
             </div>
-            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
-              user.emailAddresses?.[0]?.verification?.status === "verified"
-                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                : "bg-amber-50 text-amber-700 border-amber-100"
-            }`}>
+            <span
+              className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                user.emailAddresses?.[0]?.verification?.status === "verified"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                  : "bg-amber-50 text-amber-700 border-amber-100"
+              }`}
+            >
               {user.emailAddresses?.[0]?.verification?.status === "verified"
                 ? "Verified"
                 : "Pending"}

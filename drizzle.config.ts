@@ -30,5 +30,4 @@ export default defineConfig({
   // Additional options
   verbose: true,
   strict: true,
-  
 });

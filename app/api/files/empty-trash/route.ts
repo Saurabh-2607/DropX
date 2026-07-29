@@ -28,7 +28,7 @@ export async function DELETE() {
     if (trashedFiles.length === 0) {
       return NextResponse.json(
         { message: "No files in trash" },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -63,7 +63,7 @@ export async function DELETE() {
             } catch (searchError) {
               console.error(
                 `Error searching for file in ImageKit:`,
-                searchError
+                searchError,
               );
               await imagekit.deleteFile(imagekitFileId);
             }
@@ -90,7 +90,7 @@ export async function DELETE() {
     console.error("Error emptying trash:", error);
     return NextResponse.json(
       { error: "Failed to empty trash" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

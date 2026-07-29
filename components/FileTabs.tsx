@@ -26,7 +26,9 @@ export default function FileTabs({
   onUploadClick,
 }: FileTabsProps) {
   // Only count non-folder files for the counter display
-  const allFilesCount = files.filter((file) => !file.isTrash && !file.isFolder).length;
+  const allFilesCount = files.filter(
+    (file) => !file.isTrash && !file.isFolder,
+  ).length;
 
   return (
     <div className="flex justify-between items-center border-b border-stone-100 w-full pb-0.5 min-h-[44px]">
@@ -113,8 +115,18 @@ export default function FileTabs({
               onClick={onUploadClick}
               className="gap-1.5"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               Upload Files
             </Button>

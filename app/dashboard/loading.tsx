@@ -24,7 +24,10 @@ export default function Loading() {
           {/* Grid Skeleton */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {[...Array(12)].map((_, i) => (
-              <div key={i} className="flex flex-col gap-2 p-3 bg-white border border-stone-200 rounded-xl shadow-sm">
+              <div
+                key={i}
+                className="flex flex-col gap-2 p-3 bg-white border border-stone-200 rounded-xl shadow-sm"
+              >
                 <div className="w-full aspect-square bg-stone-100 rounded-lg"></div>
                 <div className="h-3 w-3/4 bg-stone-200 rounded mt-1"></div>
                 <div className="h-2 w-1/2 bg-stone-100 rounded"></div>

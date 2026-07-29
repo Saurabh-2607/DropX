@@ -60,8 +60,8 @@ export default function DashboardContent({
             >
               <X className="h-4 w-4" />
             </button>
-            <FileUploadForm 
-              userId={userId} 
+            <FileUploadForm
+              userId={userId}
               onUploadSuccess={handleFileUploadSuccess}
               currentFolder={currentFolder}
             />

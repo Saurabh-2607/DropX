@@ -15,13 +15,16 @@ import { Button } from "@/components/ui/Button";
 
 export default function Home() {
   // Mock interactive showcase states
-  const [activeTab, setActiveTab] = useState<"files" | "filters" | "settings" | "activity">("files");
-  const [activeFilter, setActiveFilter] = useState<"none" | "grayscale" | "blur" | "sepia">("none");
+  const [activeTab, setActiveTab] = useState<
+    "files" | "filters" | "settings" | "activity"
+  >("files");
+  const [activeFilter, setActiveFilter] = useState<
+    "none" | "grayscale" | "blur" | "sepia"
+  >("none");
   const [storageUsed, setStorageUsed] = useState(2.3);
 
   return (
     <div className="text-stone-800 font-sans selection:bg-indigo-500 selection:text-white max-w-6xl w-full mx-auto px-4 md:px-6 pb-10">
-
       {/* Eyebrow Label Pill */}
       <div className="flex flex-col items-center gap-10 pt-24 pb-10 md:pb-20 text-center">
         <a
@@ -33,7 +36,8 @@ export default function Home() {
           </p>
           <div className="flex items-center">
             <p className="text-stone-800 font-medium text-sm pl-4 pr-3 leading-5">
-              <span className="hidden md:inline">Nested Folders:</span> DropX now supports structured file organization.
+              <span className="hidden md:inline">Nested Folders:</span> DropX
+              now supports structured file organization.
             </p>
           </div>
         </a>
@@ -41,12 +45,15 @@ export default function Home() {
         {/* Cooper Serif Display Title */}
         <div className="flex flex-col gap-4">
           <h1 className="font-cooper text-[40px] lg:text-[80px] leading-[1.1] text-stone-900 tracking-tight">
-            Secure storage for <br className="hidden md:inline" />all your visual <em>media</em>
+            Secure storage for <br className="hidden md:inline" />
+            all your visual <em>media</em>
           </h1>
           <h2 className="text-stone-500 text-base md:text-xl max-w-3xl leading-7 mx-auto font-sans">
-            DropX is the simplest way to store, organize, and preview your creative assets.
+            DropX is the simplest way to store, organize, and preview your
+            creative assets.
             <br className="hidden md:inline" />
-            Built for modern teams with secure folders, instant previews, and beautiful photo filters.
+            Built for modern teams with secure folders, instant previews, and
+            beautiful photo filters.
           </h2>
         </div>
 
@@ -78,7 +85,11 @@ export default function Home() {
           alt="Scenic mountain landscape"
           className="absolute inset-0 w-full h-full object-cover"
         />
-          <img src="/demo.png" alt="demoimage" className="relative z-10 w-full mx-24 mt-120 rounded-xl overflow-hidden border-stone-200" />
+        <img
+          src="/demo.png"
+          alt="demoimage"
+          className="relative z-10 w-full mx-24 mt-120 rounded-xl overflow-hidden border-stone-200"
+        />
       </div>
 
       {/* 3-Column Top Feature Grids */}
@@ -87,9 +98,12 @@ export default function Home() {
           {/* Box 1 */}
           <li className="flex flex-col border-b border-stone-200 sm:border-b-0 [&:not(:last-child)]:sm:border-r">
             <div className="flex flex-col gap-2 px-4 sm:px-6 py-6 flex-1 bg-white">
-              <p className="text-stone-800 font-medium text-base font-mono">5GB Free Storage</p>
+              <p className="text-stone-800 font-medium text-base font-mono">
+                5GB Free Storage
+              </p>
               <p className="text-stone-500 font-normal text-base leading-6">
-                Get 5GB of cloud space for all your media, photos, and assets. Store your files in one secure and organized location.
+                Get 5GB of cloud space for all your media, photos, and assets.
+                Store your files in one secure and organized location.
               </p>
             </div>
             <ul className="grid grid-cols-1 border-t border-stone-200">
@@ -98,8 +112,16 @@ export default function Home() {
                   href="/dashboard"
                   className="flex items-center text-stone-500 justify-between gap-4 px-6 py-3 hover:bg-stone-100 transition-colors"
                 >
-                  <p className="text-stone-800 font-medium text-xs font-mono uppercase">Open Storage</p>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <p className="text-stone-800 font-medium text-xs font-mono uppercase">
+                    Open Storage
+                  </p>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
                     <path
                       d="M6.84444 17.4476L17.1564 7.13566M17.1564 7.13566V17.0352M17.1564 7.13566H7.25692"
                       stroke="currentColor"
@@ -117,9 +139,12 @@ export default function Home() {
           {/* Box 2 */}
           <li className="flex flex-col border-b border-stone-200 sm:border-b-0 [&:not(:last-child)]:sm:border-r">
             <div className="flex flex-col gap-2 px-4 sm:px-6 py-6 flex-1 bg-white">
-              <p className="text-stone-800 font-medium text-base font-mono">Instant Previews</p>
+              <p className="text-stone-800 font-medium text-base font-mono">
+                Instant Previews
+              </p>
               <p className="text-stone-500 font-normal text-base leading-6">
-                View and edit your images right in your browser. Apply filters, crop, and resize files instantly without downloading them.
+                View and edit your images right in your browser. Apply filters,
+                crop, and resize files instantly without downloading them.
               </p>
             </div>
             <ul className="grid grid-cols-1 border-t border-stone-200">
@@ -128,8 +153,16 @@ export default function Home() {
                   href="/dashboard"
                   className="flex items-center text-stone-500 justify-between gap-4 px-6 py-3 hover:bg-stone-100 transition-colors"
                 >
-                  <p className="text-stone-800 font-medium text-xs font-mono uppercase">Try Previews</p>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <p className="text-stone-800 font-medium text-xs font-mono uppercase">
+                    Try Previews
+                  </p>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
                     <path
                       d="M6.84444 17.4476L17.1564 7.13566M17.1564 7.13566V17.0352M17.1564 7.13566H7.25692"
                       stroke="currentColor"
@@ -147,9 +180,12 @@ export default function Home() {
           {/* Box 3 */}
           <li className="flex flex-col border-b border-stone-200 sm:border-b-0 [&:not(:last-child)]:sm:border-r">
             <div className="flex flex-col gap-2 px-4 sm:px-6 py-6 flex-1 bg-white">
-              <p className="text-stone-800 font-medium text-base font-mono">Secure Access</p>
+              <p className="text-stone-800 font-medium text-base font-mono">
+                Secure Access
+              </p>
               <p className="text-stone-500 font-normal text-base leading-6">
-                Keep your work safe with secure authentication. Access your folders safely from any device with your team workspace.
+                Keep your work safe with secure authentication. Access your
+                folders safely from any device with your team workspace.
               </p>
             </div>
             <ul className="grid grid-cols-1 border-t border-stone-200">
@@ -158,8 +194,16 @@ export default function Home() {
                   href="/dashboard"
                   className="flex items-center text-stone-500 justify-between gap-4 px-6 py-3 hover:bg-stone-100 transition-colors"
                 >
-                  <p className="text-stone-800 font-medium text-xs font-mono uppercase">Manage Access</p>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <p className="text-stone-800 font-medium text-xs font-mono uppercase">
+                    Manage Access
+                  </p>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
                     <path
                       d="M6.84444 17.4476L17.1564 7.13566M17.1564 7.13566V17.0352M17.1564 7.13566H7.25692"
                       stroke="currentColor"
@@ -253,7 +297,6 @@ export default function Home() {
       {/* INTERACTIVE PRODUCT SHOWCASE SECTION */}
       <section id="features" className="flex my-10 md:my-20 flex-col gap-20">
         <div className="flex flex-col border-x border-t border-b-0 md:border-b border-stone-200">
-
           {/* Title Bar */}
           <div className="grid grid-cols-1 md:grid-cols-2 border-b gap-4 border-stone-200 px-4 md:px-6 py-6 bg-white">
             <div className="flex flex-col gap-2 md:gap-4">
@@ -268,11 +311,9 @@ export default function Home() {
 
           {/* Split Screen interactive view */}
           <div className="hidden md:grid md:grid-cols-2 md:h-[520px] md:overflow-hidden bg-white">
-
             {/* Left Column: Tab list */}
             <div className="md:border-r border-stone-200 flex flex-col justify-stretch">
               <div className="flex divide-y divide-stone-200 flex-col h-full">
-
                 {/* Tab 1 */}
                 <button
                   type="button"
@@ -289,9 +330,12 @@ export default function Home() {
                       <Files className="h-5 w-5" />
                     </span>
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">All Files</p>
+                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">
+                        All Files
+                      </p>
                       <p className="text-stone-500 font-normal text-sm leading-relaxed">
-                        Browse all your uploaded images, search by name, or view details instantly.
+                        Browse all your uploaded images, search by name, or view
+                        details instantly.
                       </p>
                     </div>
                   </div>
@@ -313,9 +357,12 @@ export default function Home() {
                       <Sliders className="h-5 w-5" />
                     </span>
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">Quick Filters</p>
+                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">
+                        Quick Filters
+                      </p>
                       <p className="text-stone-500 font-normal text-sm leading-relaxed">
-                        Preview and adjust your files instantly. Add quick filters in one click.
+                        Preview and adjust your files instantly. Add quick
+                        filters in one click.
                       </p>
                     </div>
                   </div>
@@ -337,7 +384,9 @@ export default function Home() {
                       <Shield className="h-5 w-5" />
                     </span>
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">Workspace Limit</p>
+                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">
+                        Workspace Limit
+                      </p>
                       <p className="text-stone-500 font-normal text-sm leading-relaxed">
                         Track storage volume and manage your project limits.
                       </p>
@@ -361,27 +410,30 @@ export default function Home() {
                       <Activity className="h-5 w-5" />
                     </span>
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">Activity Logs</p>
+                      <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">
+                        Activity Logs
+                      </p>
                       <p className="text-stone-500 font-normal text-sm leading-relaxed">
-                        Review file history, access logs, and team changes as they happen.
+                        Review file history, access logs, and team changes as
+                        they happen.
                       </p>
                     </div>
                   </div>
                 </button>
-
               </div>
             </div>
 
             {/* Right Column: Interactive Mockup Canvas */}
             <div className="relative overflow-hidden bg-stone-100 flex items-center justify-center p-6">
               <div className="bg-white rounded-lg shadow-xl overflow-hidden w-full h-full flex flex-col border border-stone-200">
-
                 {/* Header bar */}
                 <div className="flex items-center gap-1.5 bg-stone-100 px-3 py-2.5 border-b border-stone-200 shrink-0">
                   <span className="w-3 h-3 rounded-full bg-red-400"></span>
                   <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
                   <span className="w-3 h-3 rounded-full bg-green-400"></span>
-                  <span className="ml-auto font-mono text-[10px] text-stone-400 uppercase tracking-wider">DropX Workspace Manager</span>
+                  <span className="ml-auto font-mono text-[10px] text-stone-400 uppercase tracking-wider">
+                    DropX Workspace Manager
+                  </span>
                 </div>
 
                 {/* Canvas Body */}
@@ -389,34 +441,56 @@ export default function Home() {
                   {activeTab === "files" && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">All Assets</h3>
+                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">
+                          All Assets
+                        </h3>
                         <span className="text-xs text-stone-400">3 Files</span>
                       </div>
                       <div className="grid grid-cols-1 gap-2">
                         <div className="flex items-center justify-between p-3 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded overflow-hidden bg-stone-200 border border-stone-200 shrink-0">
-                              <img src="/bg-mountains.jpg" className="w-full h-full object-cover" alt="mountains" />
+                              <img
+                                src="/bg-mountains.jpg"
+                                className="w-full h-full object-cover"
+                                alt="mountains"
+                              />
                             </div>
                             <div>
-                              <p className="text-xs font-mono font-medium text-stone-800">bg-mountains.jpg</p>
-                              <p className="text-[10px] text-stone-400">138 KB • Image</p>
+                              <p className="text-xs font-mono font-medium text-stone-800">
+                                bg-mountains.jpg
+                              </p>
+                              <p className="text-[10px] text-stone-400">
+                                138 KB • Image
+                              </p>
                             </div>
                           </div>
-                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">Stored</span>
+                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">
+                            Stored
+                          </span>
                         </div>
 
                         <div className="flex items-center justify-between p-3 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded overflow-hidden bg-stone-200 border border-stone-200 shrink-0">
-                              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" className="w-full h-full object-cover" alt="profile" />
+                              <img
+                                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop"
+                                className="w-full h-full object-cover"
+                                alt="profile"
+                              />
                             </div>
                             <div>
-                              <p className="text-xs font-mono font-medium text-stone-800">avatar-profile.webp</p>
-                              <p className="text-[10px] text-stone-400">24 KB • Image</p>
+                              <p className="text-xs font-mono font-medium text-stone-800">
+                                avatar-profile.webp
+                              </p>
+                              <p className="text-[10px] text-stone-400">
+                                24 KB • Image
+                              </p>
                             </div>
                           </div>
-                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">Stored</span>
+                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">
+                            Stored
+                          </span>
                         </div>
 
                         <div className="flex items-center justify-between p-3 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
@@ -425,11 +499,17 @@ export default function Home() {
                               <Image className="w-5 h-5 text-[#615FFF]" />
                             </div>
                             <div>
-                              <p className="text-xs font-mono font-medium text-stone-800">marketing-banner.webp</p>
-                              <p className="text-[10px] text-stone-400">142 KB • Image</p>
+                              <p className="text-xs font-mono font-medium text-stone-800">
+                                marketing-banner.webp
+                              </p>
+                              <p className="text-[10px] text-stone-400">
+                                142 KB • Image
+                              </p>
                             </div>
                           </div>
-                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">Stored</span>
+                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">
+                            Stored
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -438,33 +518,45 @@ export default function Home() {
                   {activeTab === "filters" && (
                     <div className="flex flex-col gap-4 h-full">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">Quick Filters</h3>
-                        <span className="text-xs text-stone-400 font-mono">Active: {activeFilter}</span>
+                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">
+                          Quick Filters
+                        </h3>
+                        <span className="text-xs text-stone-400 font-mono">
+                          Active: {activeFilter}
+                        </span>
                       </div>
                       <div className="flex-1 min-h-[160px] bg-stone-100 rounded-lg overflow-hidden border border-stone-200 relative flex items-center justify-center">
                         <img
                           src="/bg-mountains.jpg"
                           alt="Filter preview"
-                          className={`w-full h-full object-cover transition-all duration-300 ${activeFilter === "grayscale" ? "grayscale" :
-                            activeFilter === "blur" ? "blur-[2px]" :
-                              activeFilter === "sepia" ? "sepia" : ""
-                            }`}
+                          className={`w-full h-full object-cover transition-all duration-300 ${
+                            activeFilter === "grayscale"
+                              ? "grayscale"
+                              : activeFilter === "blur"
+                                ? "blur-[2px]"
+                                : activeFilter === "sepia"
+                                  ? "sepia"
+                                  : ""
+                          }`}
                         />
                       </div>
                       <div className="grid grid-cols-4 gap-1.5 pt-1">
-                        {(["none", "grayscale", "blur", "sepia"] as const).map((filter) => (
-                          <button
-                            key={filter}
-                            type="button"
-                            onClick={() => setActiveFilter(filter)}
-                            className={`py-1.5 rounded border text-[10px] font-mono uppercase font-semibold transition-all ${activeFilter === filter
-                              ? "bg-stone-900 border-stone-900 text-white"
-                              : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                        {(["none", "grayscale", "blur", "sepia"] as const).map(
+                          (filter) => (
+                            <button
+                              key={filter}
+                              type="button"
+                              onClick={() => setActiveFilter(filter)}
+                              className={`py-1.5 rounded border text-[10px] font-mono uppercase font-semibold transition-all ${
+                                activeFilter === filter
+                                  ? "bg-stone-900 border-stone-900 text-white"
+                                  : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
                               }`}
-                          >
-                            {filter}
-                          </button>
-                        ))}
+                            >
+                              {filter}
+                            </button>
+                          ),
+                        )}
                       </div>
                     </div>
                   )}
@@ -472,14 +564,20 @@ export default function Home() {
                   {activeTab === "settings" && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">Workspace Limits</h3>
-                        <p className="text-stone-400 text-xs mt-1">Manage storage limits for your active space.</p>
+                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">
+                          Workspace Limits
+                        </h3>
+                        <p className="text-stone-400 text-xs mt-1">
+                          Manage storage limits for your active space.
+                        </p>
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex justify-between text-xs font-mono">
                           <span className="text-stone-600">Storage Used</span>
-                          <span className="text-stone-800 font-bold">{storageUsed.toFixed(1)} GB / 5.0 GB</span>
+                          <span className="text-stone-800 font-bold">
+                            {storageUsed.toFixed(1)} GB / 5.0 GB
+                          </span>
                         </div>
                         <div className="w-full bg-stone-100 rounded-full h-3 overflow-hidden border border-stone-200">
                           <div
@@ -512,29 +610,50 @@ export default function Home() {
                   {activeTab === "activity" && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">Activity History</h3>
-                        <span className="text-xs text-stone-400">Real-time</span>
+                        <h3 className="text-sm font-semibold text-stone-800 uppercase font-mono tracking-wider">
+                          Activity History
+                        </h3>
+                        <span className="text-xs text-stone-400">
+                          Real-time
+                        </span>
                       </div>
                       <div className="space-y-3">
                         <div className="flex gap-2.5 text-xs">
                           <span className="text-stone-400 mt-0.5">●</span>
                           <div>
-                            <p className="text-stone-800 font-mono"><span className="font-semibold">Saurabh Sharma</span> uploaded avatar-profile.webp</p>
-                            <p className="text-[10px] text-stone-400">2 minutes ago</p>
+                            <p className="text-stone-800 font-mono">
+                              <span className="font-semibold">
+                                Saurabh Sharma
+                              </span>{" "}
+                              uploaded avatar-profile.webp
+                            </p>
+                            <p className="text-[10px] text-stone-400">
+                              2 minutes ago
+                            </p>
                           </div>
                         </div>
                         <div className="flex gap-2.5 text-xs">
                           <span className="text-stone-400 mt-0.5">●</span>
                           <div>
-                            <p className="text-stone-800 font-mono"><span className="font-semibold">Alex Rivera</span> applied quick filter: sepia</p>
-                            <p className="text-[10px] text-stone-400">1 hour ago</p>
+                            <p className="text-stone-800 font-mono">
+                              <span className="font-semibold">Alex Rivera</span>{" "}
+                              applied quick filter: sepia
+                            </p>
+                            <p className="text-[10px] text-stone-400">
+                              1 hour ago
+                            </p>
                           </div>
                         </div>
                         <div className="flex gap-2.5 text-xs">
                           <span className="text-[#615FFF] mt-0.5">●</span>
                           <div>
-                            <p className="text-stone-800 font-mono"><span className="font-semibold">System</span> optimized bg-mountains.jpg (138 KB saved)</p>
-                            <p className="text-[10px] text-stone-400">3 hours ago</p>
+                            <p className="text-stone-800 font-mono">
+                              <span className="font-semibold">System</span>{" "}
+                              optimized bg-mountains.jpg (138 KB saved)
+                            </p>
+                            <p className="text-[10px] text-stone-400">
+                              3 hours ago
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -543,108 +662,136 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* Mobile Accordion View */}
           <div className="md:hidden flex flex-col bg-white">
-            {(["files", "filters", "settings", "activity"] as const).map((tab) => (
-              <div key={tab} className="border-b border-stone-200">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab(activeTab === tab ? "files" : tab)}
-                  className="flex justify-between items-center w-full p-4 font-mono font-bold text-sm uppercase text-stone-800 text-left bg-stone-50"
-                >
-                  <span>{tab === "files" ? "All Files" : tab === "filters" ? "Quick Filters" : tab === "settings" ? "Workspace Limit" : "Activity Logs"}</span>
-                  <span>{activeTab === tab ? "−" : "+"}</span>
-                </button>
-                {activeTab === tab && (
-                  <div className="p-4 bg-white space-y-4">
-                    <p className="text-xs text-stone-500">
-                      {tab === "files" && "Browse all your uploaded images, search by name, or view details instantly."}
-                      {tab === "filters" && "Preview and adjust your files instantly. Add quick filters in one click."}
-                      {tab === "settings" && "Track storage volume and manage your project limits."}
-                      {tab === "activity" && "Review file history, access logs, and team changes as they happen."}
-                    </p>
+            {(["files", "filters", "settings", "activity"] as const).map(
+              (tab) => (
+                <div key={tab} className="border-b border-stone-200">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActiveTab(activeTab === tab ? "files" : tab)
+                    }
+                    className="flex justify-between items-center w-full p-4 font-mono font-bold text-sm uppercase text-stone-800 text-left bg-stone-50"
+                  >
+                    <span>
+                      {tab === "files"
+                        ? "All Files"
+                        : tab === "filters"
+                          ? "Quick Filters"
+                          : tab === "settings"
+                            ? "Workspace Limit"
+                            : "Activity Logs"}
+                    </span>
+                    <span>{activeTab === tab ? "−" : "+"}</span>
+                  </button>
+                  {activeTab === tab && (
+                    <div className="p-4 bg-white space-y-4">
+                      <p className="text-xs text-stone-500">
+                        {tab === "files" &&
+                          "Browse all your uploaded images, search by name, or view details instantly."}
+                        {tab === "filters" &&
+                          "Preview and adjust your files instantly. Add quick filters in one click."}
+                        {tab === "settings" &&
+                          "Track storage volume and manage your project limits."}
+                        {tab === "activity" &&
+                          "Review file history, access logs, and team changes as they happen."}
+                      </p>
 
-                    {/* Mobile mockup detail renders */}
-                    <div className="border border-stone-200 rounded-lg p-3 bg-stone-50">
-                      {tab === "files" && (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-xs font-mono">
-                            <span className="font-semibold">bg-mountains.jpg</span>
-                            <span className="text-stone-400">138 KB</span>
+                      {/* Mobile mockup detail renders */}
+                      <div className="border border-stone-200 rounded-lg p-3 bg-stone-50">
+                        {tab === "files" && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-xs font-mono">
+                              <span className="font-semibold">
+                                bg-mountains.jpg
+                              </span>
+                              <span className="text-stone-400">138 KB</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs font-mono">
+                              <span className="font-semibold">
+                                avatar-profile.webp
+                              </span>
+                              <span className="text-stone-400">24 KB</span>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between text-xs font-mono">
-                            <span className="font-semibold">avatar-profile.webp</span>
-                            <span className="text-stone-400">24 KB</span>
-                          </div>
-                        </div>
-                      )}
+                        )}
 
-                      {tab === "filters" && (
-                        <div className="space-y-3">
-                          <div className="w-full h-32 rounded bg-stone-200 overflow-hidden relative">
-                            <img
-                              src="/bg-mountains.jpg"
-                              className={`w-full h-full object-cover ${activeFilter === "grayscale" ? "grayscale" :
-                                activeFilter === "blur" ? "blur-[2px]" :
-                                  activeFilter === "sepia" ? "sepia" : ""
+                        {tab === "filters" && (
+                          <div className="space-y-3">
+                            <div className="w-full h-32 rounded bg-stone-200 overflow-hidden relative">
+                              <img
+                                src="/bg-mountains.jpg"
+                                className={`w-full h-full object-cover ${
+                                  activeFilter === "grayscale"
+                                    ? "grayscale"
+                                    : activeFilter === "blur"
+                                      ? "blur-[2px]"
+                                      : activeFilter === "sepia"
+                                        ? "sepia"
+                                        : ""
                                 }`}
-                              alt="mobile filter"
-                            />
-                          </div>
-                          <div className="grid grid-cols-4 gap-1">
-                            {(["none", "grayscale", "blur", "sepia"] as const).map((filter) => (
-                              <button
-                                key={filter}
-                                type="button"
-                                onClick={() => setActiveFilter(filter)}
-                                className={`py-1 rounded text-[9px] font-mono uppercase ${activeFilter === filter ? "bg-stone-900 text-white" : "bg-white border text-stone-500"
+                                alt="mobile filter"
+                              />
+                            </div>
+                            <div className="grid grid-cols-4 gap-1">
+                              {(
+                                ["none", "grayscale", "blur", "sepia"] as const
+                              ).map((filter) => (
+                                <button
+                                  key={filter}
+                                  type="button"
+                                  onClick={() => setActiveFilter(filter)}
+                                  className={`py-1 rounded text-[9px] font-mono uppercase ${
+                                    activeFilter === filter
+                                      ? "bg-stone-900 text-white"
+                                      : "bg-white border text-stone-500"
                                   }`}
+                                >
+                                  {filter}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {tab === "settings" && (
+                          <div className="space-y-3">
+                            <div className="flex justify-between text-xs font-mono">
+                              <span>Used space</span>
+                              <span>{storageUsed.toFixed(1)} GB / 5.0 GB</span>
+                            </div>
+                            <div className="flex gap-1.5">
+                              <button
+                                onClick={() => setStorageUsed(2.3)}
+                                className="flex-1 py-1 text-[10px] font-mono uppercase bg-white border rounded"
                               >
-                                {filter}
+                                Reset
                               </button>
-                            ))}
+                              <button
+                                onClick={() => setStorageUsed(0)}
+                                className="flex-1 py-1 text-[10px] font-mono uppercase bg-red-50 text-red-600 border border-red-100 rounded"
+                              >
+                                Clear
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {tab === "settings" && (
-                        <div className="space-y-3">
-                          <div className="flex justify-between text-xs font-mono">
-                            <span>Used space</span>
-                            <span>{storageUsed.toFixed(1)} GB / 5.0 GB</span>
+                        {tab === "activity" && (
+                          <div className="space-y-2 text-[10px] font-mono">
+                            <p>👤 Saurabh uploaded profile.webp</p>
+                            <p>👤 Alex applied: sepia filter</p>
                           </div>
-                          <div className="flex gap-1.5">
-                            <button
-                              onClick={() => setStorageUsed(2.3)}
-                              className="flex-1 py-1 text-[10px] font-mono uppercase bg-white border rounded"
-                            >
-                              Reset
-                            </button>
-                            <button
-                              onClick={() => setStorageUsed(0)}
-                              className="flex-1 py-1 text-[10px] font-mono uppercase bg-red-50 text-red-600 border border-red-100 rounded"
-                            >
-                              Clear
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {tab === "activity" && (
-                        <div className="space-y-2 text-[10px] font-mono">
-                          <p>👤 Saurabh uploaded profile.webp</p>
-                          <p>👤 Alex applied: sepia filter</p>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ),
+            )}
           </div>
 
           {/* Bottom link */}
@@ -654,7 +801,13 @@ export default function Home() {
           >
             <span className="flex items-center gap-2 text-indigo-600 font-mono font-bold text-xs uppercase tracking-wider">
               Go to your Workspace Dashboard
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
                 <path
                   d="M5 12H19.5833M19.5833 12L12.5833 5M19.5833 12L12.5833 19"
                   stroke="currentColor"
@@ -665,14 +818,12 @@ export default function Home() {
               </svg>
             </span>
           </a>
-
         </div>
       </section>
 
       {/* STARRED & TRASH MEDIA MANAGEMENT SECTION */}
       <section className="my-10 md:my-20 border border-stone-200 rounded-lg overflow-hidden bg-white">
         <div className="grid grid-cols-1 md:grid-cols-2">
-
           {/* Left side text */}
           <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-16 bg-white border-b md:border-b-0 md:border-r border-stone-200">
             <span className="text-[#615FFF] font-medium text-xs uppercase font-mono tracking-wider block mb-4">
@@ -682,54 +833,74 @@ export default function Home() {
               Starred Favorites. Clutter-Free.
             </h2>
             <p className="text-stone-500 text-sm md:text-base leading-relaxed mb-8">
-              Keep your creative workspace clean and organized. Star your most important images or videos for instant one-click access, and safely remove unwanted files to the trash with full recovery capability.
+              Keep your creative workspace clean and organized. Star your most
+              important images or videos for instant one-click access, and
+              safely remove unwanted files to the trash with full recovery
+              capability.
             </p>
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-stone-800 text-sm">
                 <Check className="h-4 w-4 text-[#615fff]" />
-                <span>Star key media files to filter and locate them instantly</span>
+                <span>
+                  Star key media files to filter and locate them instantly
+                </span>
               </li>
               <li className="flex items-center gap-3 text-stone-800 text-sm">
                 <Check className="h-4 w-4 text-[#615fff]" />
-                <span>Safely delete files to a temporary trash bin before purging</span>
+                <span>
+                  Safely delete files to a temporary trash bin before purging
+                </span>
               </li>
               <li className="flex items-center gap-3 text-stone-800 text-sm">
                 <Check className="h-4 w-4 text-[#615fff]" />
-                <span>Restore deleted items back to your active gallery at any time</span>
+                <span>
+                  Restore deleted items back to your active gallery at any time
+                </span>
               </li>
             </ul>
           </div>
 
           {/* Right side image backdrop */}
           <div className="relative h-64 md:h-auto min-h-[300px] overflow-hidden">
-            <img src="/bg-mountains.jpg" alt="Mountains" className="w-full h-full object-cover" />
+            <img
+              src="/bg-mountains.jpg"
+              alt="Mountains"
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-stone-950/20" />
 
             {/* project sidebar card wrapper mock */}
             <div className="absolute inset-0 flex items-center justify-center p-6">
               <div className="w-full max-w-[288px] bg-white border border-stone-200 rounded-lg shadow-xl overflow-hidden p-3 font-mono">
                 <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-                  <span className="text-[11px] text-stone-400 uppercase tracking-widest font-bold">Quick Access</span>
+                  <span className="text-[11px] text-stone-400 uppercase tracking-widest font-bold">
+                    Quick Access
+                  </span>
                   <span className="w-2.5 h-2.5 rounded-full bg-[#615FFF]" />
                 </div>
                 <div className="py-3 space-y-2">
                   <div className="flex items-center justify-between text-xs px-2 py-1 bg-stone-50 border border-stone-200 rounded">
-                    <span className="font-semibold text-stone-800 flex items-center gap-1.5">★ Starred Assets</span>
+                    <span className="font-semibold text-stone-800 flex items-center gap-1.5">
+                      ★ Starred Assets
+                    </span>
                     <span className="text-stone-400">12 Files</span>
                   </div>
                   <div className="flex items-center justify-between text-xs px-2 py-1 bg-white hover:bg-stone-50 cursor-pointer rounded border border-transparent">
-                    <span className="text-stone-500 flex items-center gap-1.5">🗑 Trash Bin</span>
+                    <span className="text-stone-500 flex items-center gap-1.5">
+                      🗑 Trash Bin
+                    </span>
                     <span className="text-stone-400">3 Files</span>
                   </div>
                 </div>
-                <a href="/dashboard" className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-stone-300 hover:border-stone-800 text-[11px] uppercase tracking-wider font-bold rounded text-stone-600 transition-colors">
+                <a
+                  href="/dashboard"
+                  className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-stone-300 hover:border-stone-800 text-[11px] uppercase tracking-wider font-bold rounded text-stone-600 transition-colors"
+                >
                   <span>Open Workspace</span>
                 </a>
               </div>
             </div>
-
           </div>
-
         </div>
       </section>
     </div>
