@@ -49,7 +49,7 @@ export default function FileUploadForm({
       status: "idle",
     }));
 
-    setUploadQueue((prev) => [...prev, ...newItems]);
+    setUploadQueue((prev) => [...newItems, ...prev]);
 
     // Trigger upload sequentially
     newItems.forEach((item) => {
@@ -237,11 +237,17 @@ export default function FileUploadForm({
             </button>
           </div>
 
-          <div className="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[35vh] overflow-y-auto pr-1.5 custom-scrollbar">
             {uploadQueue.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col bg-stone-50 border border-stone-150 p-3 rounded-lg gap-2"
+                className={`flex flex-col p-3 rounded-xl border transition-all duration-300 ${
+                  item.status === "success"
+                    ? "bg-emerald-50/20 border-emerald-100/85"
+                    : item.status === "error"
+                      ? "bg-red-50/20 border-red-100/85"
+                      : "bg-white border-stone-200/85 hover:shadow-sm"
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -250,43 +256,43 @@ export default function FileUploadForm({
                       <p className="text-sm font-semibold font-mono text-stone-700 truncate max-w-[200px]">
                         {item.file.name}
                       </p>
-                      <p className="text-xs text-stone-500 font-mono">
+                      <p className="text-xs text-stone-400 font-mono mt-0.5">
                         {item.status === "success"
-                          ? `${(item.file.size / (1024 * 1024)).toFixed(2)} MB of ${(item.file.size / (1024 * 1024)).toFixed(2)} MB`
+                          ? `${(item.file.size / (1024 * 1024)).toFixed(2)} MB`
                           : `${((item.file.size * item.progress / 100) / (1024 * 1024)).toFixed(2)} MB of ${(item.file.size / (1024 * 1024)).toFixed(2)} MB`}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {item.status === "success" && (
-                      <span className="text-[10px] font-mono font-bold text-emerald-600 tracking-wider">
+                      <span className="bg-emerald-100/80 text-emerald-800 px-2 py-0.5 rounded-md text-[8px] font-mono font-bold tracking-wider">
                         SUCCESS
                       </span>
                     )}
                     {item.status === "error" && (
-                      <span className="text-[10px] font-mono font-bold text-red-600 tracking-wider">
+                      <span className="bg-red-100/80 text-red-800 px-2 py-0.5 rounded-md text-[8px] font-mono font-bold tracking-wider">
                         FAILED
                       </span>
                     )}
                     {item.status === "uploading" && (
-                      <span className="text-[10px] font-mono font-bold text-[#615FFF] tracking-wider">
+                      <span className="bg-blue-50 text-[#615FFF] px-2 py-0.5 rounded-md text-[8px] font-mono font-bold tracking-wider animate-pulse">
                         {item.progress}%
                       </span>
                     )}
                     {item.status === "idle" && (
-                      <span className="text-[10px] font-mono font-bold text-stone-400 tracking-wider">
+                      <span className="bg-stone-100 text-stone-500 px-2 py-0.5 rounded-md text-[8px] font-mono font-bold tracking-wider">
                         QUEUED
                       </span>
                     )}
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-stone-400 hover:text-stone-600 transition-colors focus:outline-none"
+                      className="p-1 hover:bg-stone-100 text-stone-400 hover:text-stone-600 rounded-md transition-colors focus:outline-none cursor-pointer"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-                <div className="w-full bg-stone-200 rounded-full h-1 overflow-hidden">
+                <div className="w-full bg-stone-100 rounded-full h-1 overflow-hidden mt-1.5">
                   <div
                     className={`h-full transition-all duration-300 ${
                       item.status === "success"

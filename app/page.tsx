@@ -3,12 +3,13 @@
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { useState } from "react";
 import {
-  Folder,
+  Files,
   Sliders,
   Activity,
   Check,
   Shield,
   Trash2,
+  Image,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -32,7 +33,7 @@ export default function Home() {
           </p>
           <div className="flex items-center">
             <p className="text-stone-800 font-medium text-sm pl-4 pr-3 leading-5">
-              <span className="hidden md:inline">Folder Sharing:</span> DropX now supports group folders.
+              <span className="hidden md:inline">Nested Folders:</span> DropX now supports structured file organization.
             </p>
           </div>
         </a>
@@ -45,7 +46,7 @@ export default function Home() {
           <h2 className="text-stone-500 text-base md:text-xl max-w-3xl leading-7 mx-auto font-sans">
             DropX is the simplest way to store, organize, and preview your creative assets.
             <br className="hidden md:inline" />
-            Built for modern teams with secure folders, instant sharing, and beautiful photo filters.
+            Built for modern teams with secure folders, instant previews, and beautiful photo filters.
           </h2>
         </div>
 
@@ -285,12 +286,12 @@ export default function Home() {
                       </div>
                     )}
                     <span className="shrink-0 text-stone-800 mt-1">
-                      <Folder className="h-5 w-5" />
+                      <Files className="h-5 w-5" />
                     </span>
                     <div className="flex flex-col gap-1.5">
                       <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">All Files</p>
                       <p className="text-stone-500 font-normal text-sm leading-relaxed">
-                        Browse all your uploaded images, search by name, or organize them into folders.
+                        Browse all your uploaded images, search by name, or view details instantly.
                       </p>
                     </div>
                   </div>
@@ -338,7 +339,7 @@ export default function Home() {
                     <div className="flex flex-col gap-1.5">
                       <p className="text-stone-800 font-medium text-base font-mono uppercase leading-4">Workspace Limit</p>
                       <p className="text-stone-500 font-normal text-sm leading-relaxed">
-                        Track storage volume or customize team folders for client projects.
+                        Track storage volume and manage your project limits.
                       </p>
                     </div>
                   </div>
@@ -421,14 +422,14 @@ export default function Home() {
                         <div className="flex items-center justify-between p-3 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
-                              <Folder className="w-5 h-5 text-[#615FFF]" />
+                              <Image className="w-5 h-5 text-[#615FFF]" />
                             </div>
                             <div>
-                              <p className="text-xs font-mono font-medium text-stone-800">Marketing Assets</p>
-                              <p className="text-[10px] text-stone-400">0 KB • Folder</p>
+                              <p className="text-xs font-mono font-medium text-stone-800">marketing-banner.webp</p>
+                              <p className="text-[10px] text-stone-400">142 KB • Image</p>
                             </div>
                           </div>
-                          <span className="text-[10px] text-stone-400 bg-stone-100 px-2 py-0.5 rounded font-mono uppercase">Shared</span>
+                          <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded font-mono uppercase">Stored</span>
                         </div>
                       </div>
                     </div>
@@ -560,9 +561,9 @@ export default function Home() {
                 {activeTab === tab && (
                   <div className="p-4 bg-white space-y-4">
                     <p className="text-xs text-stone-500">
-                      {tab === "files" && "Browse all your uploaded images, search by name, or organize them into folders."}
+                      {tab === "files" && "Browse all your uploaded images, search by name, or view details instantly."}
                       {tab === "filters" && "Preview and adjust your files instantly. Add quick filters in one click."}
-                      {tab === "settings" && "Track storage volume or customize team folders for client projects."}
+                      {tab === "settings" && "Track storage volume and manage your project limits."}
                       {tab === "activity" && "Review file history, access logs, and team changes as they happen."}
                     </p>
 
@@ -668,29 +669,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MULTIPLE PROJECTS ROW SECTION */}
+      {/* STARRED & TRASH MEDIA MANAGEMENT SECTION */}
       <section className="my-10 md:my-20 border border-stone-200 rounded-lg overflow-hidden bg-white">
         <div className="grid grid-cols-1 md:grid-cols-2">
 
           {/* Left side text */}
           <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-16 bg-white border-b md:border-b-0 md:border-r border-stone-200">
-            <span className="text-rose-500 font-medium text-xs uppercase font-mono tracking-wider block mb-4">
-              workspace folders
+            <span className="text-[#615FFF] font-medium text-xs uppercase font-mono tracking-wider block mb-4">
+              media management
             </span>
             <h2 className="text-[32px] md:text-[40px] leading-[1.2] font-semibold text-stone-900 tracking-tight mb-6">
-              Multiple Folders, One Account.
+              Starred Favorites. Clutter-Free.
             </h2>
             <p className="text-stone-500 text-sm md:text-base leading-relaxed mb-8">
-              Create shared folders for every client, team, or project you manage. Give each folder its own member permissions, shared links, and custom storage limits under a single unified account.
+              Keep your creative workspace clean and organized. Star your most important images or videos for instant one-click access, and safely remove unwanted files to the trash with full recovery capability.
             </p>
             <ul className="space-y-3">
-              <li className="flex items-center gap-3 text-stone-800 text-[13px]">
+              <li className="flex items-center gap-3 text-stone-800 text-sm">
                 <Check className="h-4 w-4 text-[#615fff]" />
-                <span>Organize files cleanly by client or project</span>
+                <span>Star key media files to filter and locate them instantly</span>
               </li>
-              <li className="flex items-center gap-3 text-stone-800 text-[13px]">
+              <li className="flex items-center gap-3 text-stone-800 text-sm">
                 <Check className="h-4 w-4 text-[#615fff]" />
-                <span>Control who can view, edit, or upload files</span>
+                <span>Safely delete files to a temporary trash bin before purging</span>
+              </li>
+              <li className="flex items-center gap-3 text-stone-800 text-sm">
+                <Check className="h-4 w-4 text-[#615fff]" />
+                <span>Restore deleted items back to your active gallery at any time</span>
               </li>
             </ul>
           </div>
@@ -702,23 +707,23 @@ export default function Home() {
 
             {/* project sidebar card wrapper mock */}
             <div className="absolute inset-0 flex items-center justify-center p-6">
-              <div className="w-72 bg-white border border-stone-200 rounded-lg shadow-xl overflow-hidden p-3 font-mono">
+              <div className="w-full max-w-[288px] bg-white border border-stone-200 rounded-lg shadow-xl overflow-hidden p-3 font-mono">
                 <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-                  <span className="text-[11px] text-stone-400 uppercase tracking-widest font-bold">Active Folders</span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                  <span className="text-[11px] text-stone-400 uppercase tracking-widest font-bold">Quick Access</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#615FFF]" />
                 </div>
                 <div className="py-3 space-y-2">
                   <div className="flex items-center justify-between text-xs px-2 py-1 bg-stone-50 border border-stone-200 rounded">
-                    <span className="font-semibold text-stone-800">Marketing Campaign</span>
-                    <span className="text-stone-400">1.2 GB</span>
+                    <span className="font-semibold text-stone-800 flex items-center gap-1.5">★ Starred Assets</span>
+                    <span className="text-stone-400">12 Files</span>
                   </div>
                   <div className="flex items-center justify-between text-xs px-2 py-1 bg-white hover:bg-stone-50 cursor-pointer rounded border border-transparent">
-                    <span className="text-stone-500">Product Photos</span>
-                    <span className="text-stone-400">840 MB</span>
+                    <span className="text-stone-500 flex items-center gap-1.5">🗑 Trash Bin</span>
+                    <span className="text-stone-400">3 Files</span>
                   </div>
                 </div>
                 <a href="/dashboard" className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-stone-300 hover:border-stone-800 text-[11px] uppercase tracking-wider font-bold rounded text-stone-600 transition-colors">
-                  <span>+ New Folder</span>
+                  <span>Open Workspace</span>
                 </a>
               </div>
             </div>

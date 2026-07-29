@@ -322,6 +322,39 @@ export default function FileList({
     }
   };
 
+  const handleBulkRestore = async () => {
+    try {
+      addToast({
+        title: "Restoring Files",
+        description: `Restoring ${selectedFileIds.size} files...`,
+        color: "primary",
+      });
+
+      const ids = Array.from(selectedFileIds);
+      await Promise.all(ids.map(id => axios.patch(`/api/files/${id}/trash`)));
+
+      setFiles(
+        files.map((file) =>
+          selectedFileIds.has(file.id) ? { ...file, isTrash: false } : file
+        )
+      );
+
+      addToast({
+        title: "Files Restored",
+        description: `Successfully restored files from trash`,
+        color: "success",
+      });
+      clearSelection();
+    } catch (error) {
+      console.error("Error bulk restoring:", error);
+      addToast({
+        title: "Bulk Action Failed",
+        description: "Failed to restore some files.",
+        color: "danger",
+      });
+    }
+  };
+
   const handleBulkDelete = () => {
     if (activeTab !== "trash") {
       handleBulkTrash();
@@ -533,26 +566,42 @@ export default function FileList({
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleBulkStar}
-              className="h-7 text-[9px] px-2.5 gap-1"
-            >
-              <Star className="h-3 w-3 text-stone-500" />
-              Star
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleBulkDownload}
-              className="h-7 text-[9px] px-2.5 gap-1"
-            >
-              <svg className="w-3 h-3 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Download
-            </Button>
+            {activeTab === "trash" ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleBulkRestore}
+                className="h-7 text-[9px] px-2.5 gap-1 border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 hover:border-emerald-300"
+              >
+                <svg className="w-3 h-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+                Restore
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleBulkStar}
+                  className="h-7 text-[9px] px-2.5 gap-1"
+                >
+                  <Star className="h-3 w-3 text-stone-500" />
+                  Star
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleBulkDownload}
+                  className="h-7 text-[9px] px-2.5 gap-1"
+                >
+                  <svg className="w-3 h-3 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download
+                </Button>
+              </>
+            )}
             <Button
               variant="secondary"
               size="sm"
@@ -560,7 +609,7 @@ export default function FileList({
               className="h-7 text-[9px] px-2.5 gap-1 border-red-200 bg-red-50/50 hover:bg-red-50 text-red-700 hover:text-red-800 hover:border-red-300"
             >
               <Trash className="h-3 w-3" />
-              {activeTab === "trash" ? "Delete" : "Trash"}
+              {activeTab === "trash" ? "Delete Permanently" : "Trash"}
             </Button>
           </div>
         </div>
@@ -641,12 +690,13 @@ export default function FileList({
                         <MoreVertical className="h-3.5 w-3.5" />
                       </button>
                     </DropdownTrigger>
-                    <DropdownMenu
+                     <DropdownMenu
                       aria-label="File actions"
                       onAction={(key) => {
                         if (key === "select") toggleSelectFile(file.id);
                         else if (key === "star") handleStarFile(file.id);
                         else if (key === "download") handleDownloadFile(file);
+                        else if (key === "restore") handleTrashFile(file.id);
                         else if (key === "delete") {
                           if (activeTab === "trash") {
                             setSelectedFile(file);
@@ -666,22 +716,37 @@ export default function FileList({
                       >
                         {selectedFileIds.has(file.id) ? "Deselect File" : "Select File"}
                       </DropdownItem>
-                      <DropdownItem
-                        key="star"
-                        startContent={<Star className={`h-3.5 w-3.5 ${file.isStarred ? 'text-yellow-400 fill-yellow-400' : 'text-stone-400'}`} />}
-                      >
-                        {file.isStarred ? "Unstar File" : "Star File"}
-                      </DropdownItem>
-                      <DropdownItem
-                        key="download"
-                        startContent={
-                          <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        }
-                      >
-                        Download
-                      </DropdownItem>
+                      {activeTab === "trash" ? (
+                        <DropdownItem
+                          key="restore"
+                          startContent={
+                            <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                          }
+                        >
+                          Restore File
+                        </DropdownItem>
+                      ) : (
+                        <>
+                          <DropdownItem
+                            key="star"
+                            startContent={<Star className={`h-3.5 w-3.5 ${file.isStarred ? 'text-yellow-400 fill-yellow-400' : 'text-stone-400'}`} />}
+                          >
+                            {file.isStarred ? "Unstar File" : "Star File"}
+                          </DropdownItem>
+                          <DropdownItem
+                            key="download"
+                            startContent={
+                              <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                            }
+                          >
+                            Download
+                          </DropdownItem>
+                        </>
+                      )}
                       <DropdownItem
                         key="delete"
                         className="text-danger"
@@ -752,7 +817,7 @@ export default function FileList({
             <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4">
               {filteredFiles[lightboxIndex].type.startsWith("image/") ? (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,h-1200/${filteredFiles[lightboxIndex].path}`}
+                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600/${filteredFiles[lightboxIndex].path}`}
                   alt={filteredFiles[lightboxIndex].name}
                   className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                 />

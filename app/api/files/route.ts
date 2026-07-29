@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { files } from "@/lib/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, desc } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,13 +29,15 @@ export async function GET(request: NextRequest) {
       userFiles = await db
         .select()
         .from(files)
-        .where(and(eq(files.userId, userId), eq(files.parentId, parentId)));
+        .where(and(eq(files.userId, userId), eq(files.parentId, parentId)))
+        .orderBy(desc(files.createdAt));
     } else {
       // Fetch root-level files (where parentId is null)
       userFiles = await db
         .select()
         .from(files)
-        .where(and(eq(files.userId, userId), isNull(files.parentId)));
+        .where(and(eq(files.userId, userId), isNull(files.parentId)))
+        .orderBy(desc(files.createdAt));
     }
 
     return NextResponse.json(userFiles);
