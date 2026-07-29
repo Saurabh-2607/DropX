@@ -118,6 +118,113 @@ export default function FileList({
   const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
   const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
 
+  // Image Editing states
+  const [isEditing, setIsEditing] = useState(false);
+  const [brightness, setBrightness] = useState(0);
+  const [contrast, setContrast] = useState(0);
+  const [blur, setBlur] = useState(0);
+  const [sharpen, setSharpen] = useState(0);
+  const [rotation, setRotation] = useState(0);
+  const [grayscale, setGrayscale] = useState(false);
+  const [savingState, setSavingState] = useState<"idle" | "saving" | "saving-as">("idle");
+
+  useEffect(() => {
+    setIsEditing(false);
+    setBrightness(0);
+    setContrast(0);
+    setBlur(0);
+    setSharpen(0);
+    setRotation(0);
+    setGrayscale(false);
+  }, [lightboxIndex]);
+
+  const getPreviewImageUrl = (file: FileType) => {
+    return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,c-at_max/${file.path}`;
+  };
+
+  const getEditedImageUrl = (file: FileType) => {
+    const tr = ['q-90', 'w-1600', 'c-at_max'];
+    if (brightness !== 0) tr.push(`e-brightness-${brightness}`);
+    if (contrast !== 0) tr.push(`e-contrast-${contrast}`);
+    if (blur > 0) tr.push(`bl-${blur}`);
+    if (sharpen > 0) tr.push(`e-sharpen-${sharpen}`);
+    if (rotation !== 0) tr.push(`rt-${rotation}`);
+    if (grayscale) tr.push('e-grayscale');
+    
+    return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${tr.join(',')}/${file.path}`;
+  };
+
+  const handleSaveEdit = async () => {
+    if (lightboxIndex === null) return;
+    const file = filteredFiles[lightboxIndex];
+    setSavingState("saving");
+    try {
+      const url = getEditedImageUrl(file);
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const formData = new FormData();
+      formData.append("file", blob, file.name);
+
+      const response = await axios.post(`/api/files/${file.id}/replace`, formData);
+      if (response.status === 200) {
+        setFiles(files.map(f => f.id === file.id ? response.data : f));
+        setIsEditing(false);
+        addToast({ title: "Image saved successfully", color: "success" });
+      }
+    } catch (error) {
+      addToast({ title: "Error saving image", color: "danger", description: "Could not save the edited image." });
+    } finally {
+      setSavingState("idle");
+    }
+  };
+
+  const handleSaveAsEdit = async () => {
+    if (lightboxIndex === null) return;
+    const file = filteredFiles[lightboxIndex];
+    setSavingState("saving-as");
+    try {
+      const url = getEditedImageUrl(file);
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const formData = new FormData();
+      const newName = file.name.replace(/(\.[^.]+)$/, '_edited$1');
+      formData.append("file", blob, newName);
+      formData.append("userId", userId);
+      if (file.parentId) formData.append("parentId", file.parentId);
+
+      const response = await axios.post(`/api/files/upload`, formData);
+      if (response.status === 200) {
+        setFiles([response.data, ...files]);
+        setIsEditing(false);
+        addToast({ title: "Image copy saved successfully", color: "success" });
+      }
+    } catch (error) {
+      addToast({ title: "Error saving image copy", color: "danger", description: "Could not save the copy." });
+    } finally {
+      setSavingState("idle");
+    }
+  };
+
+  const handleDownloadEdit = async () => {
+    if (lightboxIndex === null) return;
+    try {
+      const url = getEditedImageUrl(filteredFiles[lightboxIndex]);
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = isEditing ? filteredFiles[lightboxIndex].name.replace(/(\.[^.]+)$/, '_edited$1') : filteredFiles[lightboxIndex].name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error(e);
+      addToast({ title: "Download failed", color: "danger" });
+    }
+  };
+
   // Fetch files
   const fetchFiles = async () => {
     setLoading(true);
@@ -789,37 +896,55 @@ export default function FileList({
               </p>
             </div>
 
-            <button
-              onClick={() => setLightboxIndex(null)}
-              className="p-2 bg-stone-900 hover:bg-stone-850 rounded-full border border-stone-800 transition-colors cursor-pointer text-white focus:outline-none"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-3">
+              {filteredFiles[lightboxIndex].type.startsWith("image/") && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="bg-stone-800 border-stone-700 text-white hover:bg-stone-700"
+                >
+                  {isEditing ? "Exit Editor" : "Edit Image"}
+                </Button>
+              )}
+              <button
+                onClick={() => setLightboxIndex(null)}
+                className="p-2 bg-stone-900 hover:bg-stone-850 rounded-full border border-stone-800 transition-colors cursor-pointer text-white focus:outline-none"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           {/* Main Showcase Area */}
-          <div className="flex-grow flex items-center justify-between gap-4 py-4 relative">
+          <div className={`flex-grow flex items-center justify-between gap-4 py-4 relative ${isEditing ? 'md:mr-80' : ''}`}>
             {/* Previous Button */}
-            <button
-              onClick={() =>
-                setLightboxIndex((prev) =>
-                  prev !== null && prev > 0 ? prev - 1 : filteredFiles.length - 1
-                )
-              }
-              className="absolute left-2 md:left-4 z-10 p-3 bg-stone-900/60 hover:bg-stone-900 border border-stone-800/50 rounded-full text-white transition-colors cursor-pointer focus:outline-none"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() =>
+                  setLightboxIndex((prev) =>
+                    prev !== null && prev > 0 ? prev - 1 : filteredFiles.length - 1
+                  )
+                }
+                className="absolute left-2 md:left-4 z-10 p-3 bg-stone-900/60 hover:bg-stone-900 border border-stone-800/50 rounded-full text-white transition-colors cursor-pointer focus:outline-none"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
 
             {/* Expanded Content */}
-            <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4">
+            <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4 transition-all duration-300">
               {filteredFiles[lightboxIndex].type.startsWith("image/") ? (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600/${filteredFiles[lightboxIndex].path}`}
+                  src={getPreviewImageUrl(filteredFiles[lightboxIndex])}
                   alt={filteredFiles[lightboxIndex].name}
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-all duration-100"
+                  style={isEditing ? {
+                    filter: `brightness(${100 + brightness}%) contrast(${100 + contrast}%) blur(${blur / 10}px) ${grayscale ? 'grayscale(100%)' : ''}`,
+                    transform: `rotate(${rotation}deg)`
+                  } : {}}
                 />
               ) : filteredFiles[lightboxIndex].type.startsWith("video/") ? (
                 <video
@@ -850,19 +975,121 @@ export default function FileList({
             </div>
 
             {/* Next Button */}
-            <button
-              onClick={() =>
-                setLightboxIndex((prev) =>
-                  prev !== null && prev < filteredFiles.length - 1 ? prev + 1 : 0
-                )
-              }
-              className="absolute right-2 md:right-4 z-10 p-3 bg-stone-900/60 hover:bg-stone-900 border border-stone-800/50 rounded-full text-white transition-colors cursor-pointer focus:outline-none"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() =>
+                  setLightboxIndex((prev) =>
+                    prev !== null && prev < filteredFiles.length - 1 ? prev + 1 : 0
+                  )
+                }
+                className="absolute right-2 md:right-4 z-10 p-3 bg-stone-900/60 hover:bg-stone-900 border border-stone-800/50 rounded-full text-white transition-colors cursor-pointer focus:outline-none"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
           </div>
+
+          {/* Editor Side Panel */}
+          {isEditing && (
+            <div className="absolute right-0 top-0 bottom-0 w-80 bg-stone-900 border-l border-stone-800 p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6 z-20">
+              <div className="flex items-center justify-between pb-4 border-b border-stone-800">
+                <h4 className="text-sm font-bold text-white font-mono uppercase">Image Editor</h4>
+                <button onClick={() => setIsEditing(false)} className="text-stone-400 hover:text-white">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-5 flex-grow">
+                {/* Sliders */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                    <span>Brightness</span>
+                    <span>{brightness}</span>
+                  </div>
+                  <input type="range" min="-100" max="100" value={brightness} onChange={(e) => setBrightness(Number(e.target.value))} className="w-full accent-blue-500" />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                    <span>Contrast</span>
+                    <span>{contrast}</span>
+                  </div>
+                  <input type="range" min="-100" max="100" value={contrast} onChange={(e) => setContrast(Number(e.target.value))} className="w-full accent-blue-500" />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                    <span>Blur</span>
+                    <span>{blur}</span>
+                  </div>
+                  <input type="range" min="0" max="100" value={blur} onChange={(e) => setBlur(Number(e.target.value))} className="w-full accent-blue-500" />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                    <span>Sharpen</span>
+                    <span>{sharpen}</span>
+                  </div>
+                  <input type="range" min="0" max="100" value={sharpen} onChange={(e) => setSharpen(Number(e.target.value))} className="w-full accent-blue-500" />
+                </div>
+
+                {/* Rotation Presets */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono text-stone-400 uppercase block">Rotation</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[0, 90, 180, 270].map((deg) => (
+                      <button
+                        key={deg}
+                        onClick={() => setRotation(deg)}
+                        className={`py-1 text-xs font-mono rounded border ${rotation === deg ? 'bg-blue-600 border-blue-500 text-white' : 'bg-stone-800 border-stone-700 text-stone-300 hover:bg-stone-700'}`}
+                      >
+                        {deg}°
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Filters */}
+                <div className="space-y-3 pt-2 border-t border-stone-800">
+                  <span className="text-[10px] font-mono text-stone-400 uppercase block">Filters</span>
+                  <label className="flex items-center gap-3 cursor-pointer text-sm text-stone-300">
+                    <input type="checkbox" checked={grayscale} onChange={(e) => setGrayscale(e.target.checked)} className="accent-blue-500 w-4 h-4 rounded" />
+                    Grayscale
+                  </label>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-4 border-t border-stone-800 space-y-2">
+                <Button 
+                  size="sm" 
+                  className="w-full bg-[#615FFF] hover:bg-[#5250D8] text-white dark:text-white border-transparent disabled:bg-[#615FFF] dark:disabled:bg-[#615FFF] disabled:opacity-50" 
+                  onClick={handleSaveEdit}
+                  disabled={savingState !== "idle"}
+                >
+                  {savingState === "saving" ? "Saving..." : "Save (Replace Original)"}
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="w-full bg-stone-800 border-stone-700 hover:bg-stone-700 text-white dark:text-white disabled:bg-stone-800 dark:disabled:bg-stone-800 disabled:border-stone-700 disabled:opacity-50" 
+                  onClick={handleSaveAsEdit}
+                  disabled={savingState !== "idle"}
+                >
+                  {savingState === "saving-as" ? "Saving Copy..." : "Save As Copy"}
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="w-full bg-stone-800 border-stone-700 hover:bg-stone-700 text-white dark:text-white disabled:bg-stone-800 dark:disabled:bg-stone-800 disabled:border-stone-700 disabled:opacity-50" 
+                  onClick={handleDownloadEdit}
+                  disabled={savingState !== "idle"}
+                >
+                  Download Edits
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Bottom Bar Details */}
           <div className="text-center text-stone-500 font-mono text-xs">

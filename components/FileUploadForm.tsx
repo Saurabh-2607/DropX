@@ -42,7 +42,9 @@ export default function FileUploadForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addFilesToQueue = (files: File[]) => {
-    const newItems: QueueItem[] = files.map((file) => ({
+    // Sort files by newest to oldest
+    const sortedFiles = [...files].sort((a, b) => b.lastModified - a.lastModified);
+    const newItems: QueueItem[] = sortedFiles.map((file) => ({
       id: Math.random().toString(36).substring(7),
       file,
       progress: 0,
