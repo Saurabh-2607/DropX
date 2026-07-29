@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, FileUp } from "lucide-react";
+import { X } from "lucide-react";
 import { addToast } from "@heroui/toast";
 import axios from "axios";
 

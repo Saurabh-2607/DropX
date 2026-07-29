@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { Star, Trash, X, MoreVertical, Check } from "lucide-react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { Star, Trash, X } from "lucide-react";
 import { addToast } from "@heroui/toast";
 import type { File as FileType } from "@/lib/db/schema";
 import axios from "axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import FileEmptyState from "@/components/FileEmptyState";
 import FileTabs from "@/components/FileTabs";
+import FileItem from "@/components/FileItem";
 import { Button } from "@/components/ui/Button";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
 interface FileListProps {
   userId: string;
+  initialFiles: FileType[];
   refreshTrigger?: number;
   onFolderChange?: (folderId: string | null) => void;
   onUploadClick?: () => void;
@@ -33,52 +34,8 @@ const getFriendlyFileType = (type: string, name: string) => {
   return `${ext} File`;
 };
 
-const FileIllustration = ({ type, name }: { type: string; name: string }) => {
-  const extension = name.split(".").pop()?.toUpperCase() || "FILE";
+// FileIllustration component has been moved to FileItem.tsx
 
-  let bgClass = "bg-stone-50 border-stone-200 text-stone-600";
-  let iconColor = "text-stone-400";
-
-  if (type.includes("pdf")) {
-    bgClass = "bg-red-50/40 border-red-150 text-red-700";
-    iconColor = "text-red-400";
-  } else if (type.includes("zip") || type.includes("compressed") || type.includes("tar")) {
-    bgClass = "bg-amber-50/40 border-amber-150 text-amber-700";
-    iconColor = "text-amber-400";
-  } else if (
-    type.includes("javascript") ||
-    type.includes("typescript") ||
-    type.includes("html") ||
-    type.includes("css") ||
-    type.includes("json") ||
-    extension === "JSX" ||
-    extension === "TSX" ||
-    extension === "JS" ||
-    extension === "TS"
-  ) {
-    bgClass = "bg-blue-50/40 border-blue-150 text-blue-700";
-    iconColor = "text-blue-400";
-  } else if (type.startsWith("audio/")) {
-    bgClass = "bg-purple-50/40 border-purple-150 text-purple-700";
-    iconColor = "text-purple-400";
-  } else if (type.includes("csv") || type.includes("sheet") || type.includes("excel") || extension === "CSV") {
-    bgClass = "bg-emerald-50/40 border-emerald-150 text-emerald-700";
-    iconColor = "text-emerald-400";
-  }
-
-  return (
-    <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 border rounded-xl ${bgClass} select-none`}>
-      <div className="relative flex flex-col items-center justify-center gap-1.5">
-        <svg className={`w-10 h-10 ${iconColor}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span className="font-mono text-[9px] font-bold uppercase tracking-wider mt-1 px-1.5 py-0.5 bg-white/90 border border-stone-200/50 rounded shadow-sm">
-          {extension.substring(0, 4)}
-        </span>
-      </div>
-    </div>
-  );
-};
 
 const FileIconLarge = ({ type, name }: { type: string; name: string }) => {
   const extension = name.split(".").pop()?.toUpperCase() || "FILE";
@@ -104,11 +61,12 @@ const FileIconLarge = ({ type, name }: { type: string; name: string }) => {
 
 export default function FileList({
   userId,
+  initialFiles,
   refreshTrigger = 0,
   onUploadClick,
 }: FileListProps) {
-  const [files, setFiles] = useState<FileType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [files, setFiles] = useState<FileType[]>(initialFiles);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
 
   // Lightbox & Modal states
@@ -245,8 +203,13 @@ export default function FileList({
     }
   };
 
-  // Fetch files when userId or refreshTrigger changes
+  // Fetch files when userId or refreshTrigger changes, skipping initial mount
+  const isInitialMount = useRef(true);
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     fetchFiles();
   }, [userId, refreshTrigger]);
 
@@ -275,23 +238,19 @@ export default function FileList({
     return files.filter((file) => file.isStarred && !file.isTrash && !file.isFolder).length;
   }, [files]);
 
-  const handleStarFile = async (fileId: string) => {
+  const handleStarFile = useCallback(async (file: FileType) => {
     try {
-      await axios.patch(`/api/files/${fileId}/star`);
+      await axios.patch(`/api/files/${file.id}/star`);
 
-      // Update local state
-      setFiles(
-        files.map((file) =>
-          file.id === fileId ? { ...file, isStarred: !file.isStarred } : file
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === file.id ? { ...f, isStarred: !file.isStarred } : f
         )
       );
 
-      // Show toast
-      const file = files.find((f) => f.id === fileId);
       addToast({
-        title: file?.isStarred ? "Removed from Starred" : "Added to Starred",
-        description: `"${file?.name}" has been ${file?.isStarred ? "removed from" : "added to"
-          } your starred files`,
+        title: !file.isStarred ? "Added to Starred" : "Removed from Starred",
+        description: `"${file.name}" has been ${!file.isStarred ? "added to" : "removed from"} your starred files`,
         color: "success",
       });
     } catch (error) {
@@ -302,26 +261,22 @@ export default function FileList({
         color: "danger",
       });
     }
-  };
+  }, []);
 
-  const handleTrashFile = async (fileId: string) => {
+  const handleTrashFile = useCallback(async (file: FileType) => {
     try {
-      const response = await axios.patch(`/api/files/${fileId}/trash`);
+      const response = await axios.patch(`/api/files/${file.id}/trash`);
       const responseData = response.data;
 
-      // Update local state
-      setFiles(
-        files.map((file) =>
-          file.id === fileId ? { ...file, isTrash: !file.isTrash } : file
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === file.id ? { ...f, isTrash: !f.isTrash } : f
         )
       );
 
-      // Show toast
-      const file = files.find((f) => f.id === fileId);
       addToast({
         title: responseData.isTrash ? "Moved to Trash" : "Restored from Trash",
-        description: `"${file?.name}" has been ${responseData.isTrash ? "moved to trash" : "restored"
-          }`,
+        description: `"${file.name}" has been ${responseData.isTrash ? "moved to trash" : "restored"}`,
         color: "success",
       });
     } catch (error) {
@@ -332,14 +287,19 @@ export default function FileList({
         color: "danger",
       });
     }
-  };
+  }, []);
+
+  const handlePermanentDelete = useCallback((file: FileType) => {
+    setSelectedFile(file);
+    setDeleteModalOpen(true);
+  }, []);
 
   // Reset selection on tab change
   useEffect(() => {
     setSelectedFileIds(new Set());
   }, [activeTab]);
 
-  const toggleSelectFile = (fileId: string, e?: React.MouseEvent) => {
+  const toggleSelectFile = useCallback((fileId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setSelectedFileIds((prev) => {
       const next = new Set(prev);
@@ -350,7 +310,7 @@ export default function FileList({
       }
       return next;
     });
-  };
+  }, []);
 
   const clearSelection = () => {
     setSelectedFileIds(new Set());
@@ -601,7 +561,7 @@ export default function FileList({
     }
   };
 
-  const handleDownloadFile = async (file: FileType) => {
+  const handleDownloadFile = useCallback(async (file: FileType) => {
     try {
       addToast({
         title: "Preparing Download",
@@ -641,7 +601,7 @@ export default function FileList({
         color: "danger",
       });
     }
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -738,146 +698,19 @@ export default function FileList({
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredFiles.map((file, index) => (
-            <div
+            <FileItem
               key={file.id}
-              onClick={() => setLightboxIndex(index)}
-              className={`relative w-full pb-[100%] h-0 rounded-xl overflow-hidden border cursor-pointer transition-all duration-300 ${selectedFileIds.has(file.id)
-                ? 'border-[#615FFF] ring-2 ring-[#615FFF]/20 bg-[#615FFF]/5'
-                : 'border-stone-200 bg-stone-50 hover:shadow-md group'
-                }`}
-            >
-              {/* Select Checkbox */}
-              <div
-                onClick={(e) => toggleSelectFile(file.id, e)}
-                className={`absolute top-3 left-3 z-30 w-5 h-5 rounded-md border flex items-center justify-center transition-all cursor-pointer ${selectedFileIds.has(file.id)
-                  ? 'bg-[#615FFF] border-[#615FFF] text-white shadow-sm'
-                  : 'bg-white/80 border-stone-300 opacity-100 md:opacity-0 group-hover:opacity-100 hover:bg-white text-transparent'
-                  }`}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-
-              {file.type.startsWith("image/") ? (
-                <img
-                  src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${file.path}`}
-                  alt={file.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              ) : file.type.startsWith("video/") ? (
-                <div className="absolute inset-0 w-full h-full bg-stone-900 overflow-hidden">
-                  <video
-                    src={file.fileUrl}
-                    preload="metadata"
-                    className="w-full h-full object-cover opacity-80"
-                    muted
-                    playsInline
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="p-2.5 bg-stone-900/80 rounded-full border border-stone-850 text-white shadow-md transition-transform group-hover:scale-110">
-                      <svg className="w-4 h-4 fill-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <FileIllustration type={file.type} name={file.name} />
-              )}
-
-              {/* Hover overlay with Actions */}
-              <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3 text-white z-20">
-                <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-                  <Dropdown placement="bottom-end">
-                    <DropdownTrigger>
-                      <button
-                        className="p-1 bg-stone-900/80 hover:bg-stone-950 rounded-lg transition-colors border border-stone-850 text-white focus:outline-none cursor-pointer flex items-center justify-center"
-                      >
-                        <MoreVertical className="h-3.5 w-3.5" />
-                      </button>
-                    </DropdownTrigger>
-                     <DropdownMenu
-                      aria-label="File actions"
-                      onAction={(key) => {
-                        if (key === "select") toggleSelectFile(file.id);
-                        else if (key === "star") handleStarFile(file.id);
-                        else if (key === "download") handleDownloadFile(file);
-                        else if (key === "restore") handleTrashFile(file.id);
-                        else if (key === "delete") {
-                          if (activeTab === "trash") {
-                            setSelectedFile(file);
-                            setDeleteModalOpen(true);
-                          } else {
-                            handleTrashFile(file.id);
-                          }
-                        }
-                      }}
-                      classNames={{
-                        base: "font-mono uppercase text-[10px]",
-                      }}
-                    >
-                      <DropdownItem
-                        key="select"
-                        startContent={<Check className="h-3.5 w-3.5 text-stone-400" />}
-                      >
-                        {selectedFileIds.has(file.id) ? "Deselect File" : "Select File"}
-                      </DropdownItem>
-                      {activeTab === "trash" ? (
-                        <DropdownItem
-                          key="restore"
-                          startContent={
-                            <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                            </svg>
-                          }
-                        >
-                          Restore File
-                        </DropdownItem>
-                      ) : (
-                        <>
-                          <DropdownItem
-                            key="star"
-                            startContent={<Star className={`h-3.5 w-3.5 ${file.isStarred ? 'text-yellow-400 fill-yellow-400' : 'text-stone-400'}`} />}
-                          >
-                            {file.isStarred ? "Unstar File" : "Star File"}
-                          </DropdownItem>
-                          <DropdownItem
-                            key="download"
-                            startContent={
-                              <svg className="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                              </svg>
-                            }
-                          >
-                            Download
-                          </DropdownItem>
-                        </>
-                      )}
-                      <DropdownItem
-                        key="delete"
-                        className="text-danger"
-                        color="danger"
-                        startContent={<Trash className="h-3.5 w-3.5" />}
-                      >
-                        {activeTab === "trash" ? "Delete Permanently" : "Move to Trash"}
-                      </DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-
-                <div className="text-left pointer-events-none">
-                  <p className="text-xs font-mono font-bold truncate">{file.name}</p>
-                  <p className="text-[10px] text-stone-300 font-mono mt-0.5">
-                    {file.size < 1024
-                      ? `${file.size} B`
-                      : file.size < 1024 * 1024
-                        ? `${(file.size / 1024).toFixed(1)} KB`
-                        : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
-                  </p>
-                </div>
-              </div>
-            </div>
+              file={file}
+              index={index}
+              isSelected={selectedFileIds.has(file.id)}
+              activeTab={activeTab}
+              onToggleSelect={toggleSelectFile}
+              onLightboxOpen={setLightboxIndex}
+              onStarFile={handleStarFile}
+              onDownloadFile={handleDownloadFile}
+              onTrashFile={handleTrashFile}
+              onPermanentDelete={handlePermanentDelete}
+            />
           ))}
         </div>
       )}

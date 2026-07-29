@@ -149,7 +149,7 @@ export default function SignInForm() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 p-2 size-9 text-stone-500 hover:text-stone-950 flex items-center justify-center"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 p-2 size-9 text-stone-500 hover:text-stone-950 flex items-center justify-center"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

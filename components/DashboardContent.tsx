@@ -5,15 +5,18 @@ import { X } from "lucide-react";
 import { Modal, ModalContent } from "@heroui/modal";
 import FileUploadForm from "@/components/FileUploadForm";
 import FileList from "@/components/FileList";
+import type { File as FileType } from "@/lib/db/schema";
 
 interface DashboardContentProps {
   userId: string;
   userName: string;
+  initialFiles: FileType[];
 }
 
 export default function DashboardContent({
   userId,
   userName,
+  initialFiles,
 }: DashboardContentProps) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
@@ -32,6 +35,7 @@ export default function DashboardContent({
       {/* Grid Layout: Compact, Full-Width File Showcase */}
       <FileList
         userId={userId}
+        initialFiles={initialFiles}
         refreshTrigger={refreshTrigger}
         onFolderChange={handleFolderChange}
         onUploadClick={() => setIsUploadModalOpen(true)}

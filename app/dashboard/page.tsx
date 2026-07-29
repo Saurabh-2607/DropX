@@ -2,6 +2,9 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import DashboardContent from "@/components/DashboardContent";
 import { CloudUpload } from "lucide-react";
+import { db } from "@/lib/db";
+import { files } from "@/lib/db/schema";
+import { eq, and, isNull, desc } from "drizzle-orm";
 
 export default async function Dashboard() {
   const { userId } = await auth();
@@ -23,6 +26,13 @@ export default async function Dashboard() {
       }
     : null;
 
+  // Fetch root-level files for SSR
+  const initialFiles = await db
+    .select()
+    .from(files)
+    .where(and(eq(files.userId, userId), isNull(files.parentId)))
+    .orderBy(desc(files.createdAt));
+
   return (
     <div className="bg-stone-50 text-stone-800 selection:bg-indigo-500 selection:text-white w-full flex justify-center flex-grow">
       <main className="max-w-6xl w-full px-4 md:px-6 pt-6 pb-12">
@@ -34,6 +44,7 @@ export default async function Dashboard() {
             user?.emailAddresses?.[0]?.emailAddress ||
             ""
           }
+          initialFiles={initialFiles}
         />
       </main>
     </div>
