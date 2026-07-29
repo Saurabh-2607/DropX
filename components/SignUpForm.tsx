@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
-import { signUpSchema } from "@/schemas/signUpSchemas";
+import { signUpSchema } from "@/schemas/signUpSchema";
 import { Button } from "@/components/ui/Button";
 
 export default function SignUpForm() {
