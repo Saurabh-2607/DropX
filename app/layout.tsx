@@ -28,11 +28,25 @@ export const metadata: Metadata = {
   description: "Secure cloud storage for your images, powered by ImageKit",
 };
 
-export default function RootLayout({
+import { currentUser } from "@clerk/nextjs/server";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await currentUser();
+  const serializedUser = user
+    ? {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        imageUrl: user.imageUrl,
+        username: user.username,
+        emailAddress: user.emailAddresses?.[0]?.emailAddress,
+      }
+    : null;
+
   return (
     <ClerkProvider>
       <html lang="en" className="light overflow-x-hidden">
@@ -41,7 +55,7 @@ export default function RootLayout({
         >
           <Providers>
             <div className="min-h-screen flex flex-col justify-between">
-              <Navbar />
+              <Navbar user={serializedUser} />
               <div className="flex-grow w-full flex flex-col">
                 {children}
               </div>

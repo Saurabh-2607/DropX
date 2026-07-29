@@ -52,6 +52,8 @@ export default function Navbar({ user }: NavbarProps) {
     emailAddress: clerkUser.emailAddresses?.[0]?.emailAddress,
   } : null);
 
+  const isActuallySignedIn = !!activeUser;
+
   const userDetails = {
     fullName: activeUser
       ? `${activeUser.firstName || ""} ${activeUser.lastName || ""}`.trim()
@@ -76,7 +78,7 @@ export default function Navbar({ user }: NavbarProps) {
     <header className="sticky top-0 w-full backdrop-blur-lg z-50 flex justify-center">
       <div className="max-w-6xl w-full">
         <div className={`gap-4 flex items-center h-14 w-full py-1 px-4 md:px-6 ${
-          isSignedIn 
+          isActuallySignedIn 
             ? "justify-between" 
             : "lg:grid lg:grid-cols-3"
         }`}>
@@ -92,7 +94,7 @@ export default function Navbar({ user }: NavbarProps) {
           </Link>
 
           {/* Center Links (hidden on mobile, and hidden when logged in) */}
-          {(!isLoaded || !isSignedIn) && (
+          {!isActuallySignedIn && (
             <div className="hidden lg:flex items-center justify-center gap-2 font-mono">
               <Dropdown>
                 <DropdownTrigger>
@@ -132,7 +134,7 @@ export default function Navbar({ user }: NavbarProps) {
 
           {/* Right Action buttons */}
           <div className="flex gap-2 lg:gap-4 justify-end items-center flex-1 lg:w-full">
-            {(!isLoaded || !isSignedIn) ? (
+            {!isActuallySignedIn ? (
               <>
                 <Button variant="secondary" href="/sign-in">Log in</Button>
                 <Button variant="primary" href="/sign-up">Sign up</Button>
@@ -167,7 +169,7 @@ export default function Navbar({ user }: NavbarProps) {
             )}
 
             {/* Mobile menu trigger (only when logged out) */}
-            {(!isLoaded || !isSignedIn) && (
+            {!isActuallySignedIn && (
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-1 text-stone-600 hover:text-stone-900 focus:outline-none"
@@ -179,7 +181,7 @@ export default function Navbar({ user }: NavbarProps) {
         </div>
 
         {/* Mobile menu drawer (only when logged out) */}
-        {isMobileMenuOpen && (!isLoaded || !isSignedIn) && (
+        {isMobileMenuOpen && !isActuallySignedIn && (
           <div className="lg:hidden w-full border-t border-stone-200 bg-stone-50 py-4 px-6 flex flex-col gap-4 font-mono">
             <Link
               href="#features"
