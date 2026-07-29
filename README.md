@@ -36,10 +36,11 @@ A simple file storage application built with Next.js, Clerk, Neon, Drizzle, and 
    ```
 
 2. Install dependencies:
+   *(Note: This project includes an `.npmrc` configured with `legacy-peer-deps=true` to handle peer dependency conflicts between Next.js, ESLint, and HeroUI)*
 
    ```bash
    npm install
-   # or
+   # or if using other package managers:
    yarn install
    # or
    pnpm install
@@ -47,7 +48,7 @@ A simple file storage application built with Next.js, Clerk, Neon, Drizzle, and 
 
 3. Create a `.env.local` file in the root directory with the following environment variables:
 
-   ```
+   ```env
    # Clerk Authentication
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    CLERK_SECRET_KEY=your_clerk_secret_key
@@ -78,6 +79,24 @@ A simple file storage application built with Next.js, Clerk, Neon, Drizzle, and 
    - Create a [Clerk](https://clerk.dev/) account and get your API keys
    - Create a [Neon](https://neon.tech/) PostgreSQL database and get your connection string
    - Create an [ImageKit](https://imagekit.io/) account and get your API keys
+
+### Database Management
+
+This project uses Drizzle ORM. You can use the following commands to manage your database schema:
+
+```bash
+# Push schema changes directly to the database
+npm run db:push
+
+# Generate a migration file from schema changes
+npm run db:generate
+
+# Run migrations
+npm run db:migrate
+
+# Open Drizzle Studio to view and manage your data locally
+npm run db:studio
+```
 
 ### Running the Application
 
