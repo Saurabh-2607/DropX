@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSignIn } from "@clerk/nextjs";
+import { useSignIn, useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
@@ -13,10 +13,20 @@ import { Button } from "@/components/ui/Button";
 
 export default function SignInForm() {
   const router = useRouter();
-  const { signIn, isLoaded, setActive } = useSignIn();
+  const { signIn } = useSignIn() as any;
+  const { isLoaded, isSignedIn } = useAuth();
+  const { signOut, setActive } = useClerk();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    console.log("[SignInForm] useEffect: isLoaded =", isLoaded, "isSignedIn =", isSignedIn);
+    if (isLoaded && isSignedIn) {
+      console.log("[SignInForm] Already signed in, redirecting to /dashboard...");
+      router.push("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   const {
     register,
@@ -31,28 +41,52 @@ export default function SignInForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-    if (!isLoaded) return;
+    console.log("[SignInForm] onSubmit triggered with identifier:", data.identifier);
+    if (!isLoaded) {
+      console.warn("[SignInForm] onSubmit aborted: Clerk SDK not loaded yet.");
+      return;
+    }
 
     setIsSubmitting(true);
     setAuthError(null);
 
     try {
+      console.log("[SignInForm] Resetting signIn attempt...");
+      await signIn.reset();
+
+      console.log("[SignInForm] Calling signIn.create()...");
       const result = await signIn.create({
         identifier: data.identifier,
         password: data.password,
       });
+      console.log("[SignInForm] signIn.create returned:", result);
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
+      if (result && result.error) {
+        console.error("[SignInForm] signIn.create returned error:", result.error);
+        if (result.error.message?.includes("already signed in")) {
+          console.warn("[SignInForm] User is already signed in on Clerk. Clearing session...");
+          await signOut();
+          window.location.reload();
+          return;
+        }
+        setAuthError(result.error.message || "Sign-in could not be completed. Please try again.");
+        return;
+      }
+
+      console.log("[SignInForm] Checking status on signIn object:", signIn.status);
+      if (signIn && signIn.status === "complete") {
+        console.log("[SignInForm] Sign-in complete. Setting active session:", signIn.createdSessionId);
+        await setActive({ session: signIn.createdSessionId });
+        console.log("[SignInForm] Active session set. Redirecting to /dashboard...");
+        window.location.href = "/dashboard";
       } else {
-        console.error("Sign-in incomplete:", result);
+        console.warn("[SignInForm] Sign-in incomplete status:", signIn?.status);
         setAuthError("Sign-in could not be completed. Please try again.");
       }
     } catch (error: any) {
-      console.error("Sign-in error:", error);
+      console.error("[SignInForm] Sign-in caught error:", error);
       setAuthError(
-        error.errors?.[0]?.message ||
+        error.message ||
           "An error occurred during sign-in. Please try again.",
       );
     } finally {
@@ -115,20 +149,20 @@ export default function SignInForm() {
             className="flex flex-col gap-6"
           >
             <div className="flex flex-col gap-4">
-              {/* Email field */}
+              {/* Email or Username field */}
               <div className="flex flex-col gap-1 group">
                 <div className="flex justify-between items-center">
                   <label
                     htmlFor="identifier"
                     className="text-sm font-medium text-stone-800"
                   >
-                    Email<span className="text-rose-500"> *</span>
+                    Email or Username<span className="text-rose-500"> *</span>
                   </label>
                 </div>
                 <div className="relative">
                   <input
                     id="identifier"
-                    type="email"
+                    type="text"
                     required
                     {...register("identifier")}
                     className={`w-full max-h-9 p-2 pl-3 outline-none text-sm rounded-lg border transition-all duration-100 ${

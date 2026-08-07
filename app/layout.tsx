@@ -38,7 +38,14 @@ export default async function RootLayout({
   let user = null;
   try {
     user = await currentUser();
-  } catch (error) {
+  } catch (error: any) {
+    if (
+      error &&
+      (error.digest === "DYNAMIC_SERVER_USAGE" ||
+        error.message?.includes("Dynamic server usage"))
+    ) {
+      throw error;
+    }
     console.error("Clerk API authentication error:", error);
   }
 

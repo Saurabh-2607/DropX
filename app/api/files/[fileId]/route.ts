@@ -128,7 +128,7 @@ export async function DELETE(
               });
 
               if (searchResults && searchResults.length > 0) {
-                await imagekit.deleteFile(searchResults[0].fileId);
+                await imagekit.deleteFile((searchResults[0] as any).fileId);
               } else {
                 await imagekit.deleteFile(imagekitFileId);
               }

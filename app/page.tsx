@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import {
   Files,
@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/Button";
 
 export default function Home() {
+  const { isSignedIn } = useAuth();
   // Mock interactive showcase states
   const [activeTab, setActiveTab] = useState<
     "files" | "filters" | "settings" | "activity"
@@ -59,22 +60,26 @@ export default function Home() {
 
         {/* CTA Buttons */}
         <div className="flex items-center gap-4">
-          <SignedOut>
-            <Button variant="secondary" href="#features" size="lg">
-              View interactive demo
-            </Button>
-            <Button variant="primary" href="/sign-up" size="lg">
-              Get Started Free
-            </Button>
-          </SignedOut>
-          <SignedIn>
-            <Button variant="secondary" href="#features" size="lg">
-              Explore Features
-            </Button>
-            <Button variant="primary" href="/dashboard" size="lg">
-              Go to Dashboard
-            </Button>
-          </SignedIn>
+          {!isSignedIn && (
+            <>
+              <Button variant="secondary" href="#features" size="lg">
+                View interactive demo
+              </Button>
+              <Button variant="primary" href="/sign-up" size="lg">
+                Get Started Free
+              </Button>
+            </>
+          )}
+          {isSignedIn && (
+            <>
+              <Button variant="secondary" href="#features" size="lg">
+                Explore Features
+              </Button>
+              <Button variant="primary" href="/dashboard" size="lg">
+                Go to Dashboard
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

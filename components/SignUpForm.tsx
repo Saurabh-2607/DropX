@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSignUp } from "@clerk/nextjs";
+import { useSignUp, useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/Button";
 
 export default function SignUpForm() {
   const router = useRouter();
-  const { signUp, isLoaded, setActive } = useSignUp();
+  const { signUp } = useSignUp() as any;
+  const { isLoaded, isSignedIn } = useAuth();
+  const { signOut, setActive } = useClerk();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
@@ -22,6 +24,14 @@ export default function SignUpForm() {
     null,
   );
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    console.log("[SignUpForm] useEffect: isLoaded =", isLoaded, "isSignedIn =", isSignedIn);
+    if (isLoaded && isSignedIn) {
+      console.log("[SignUpForm] Already signed in, redirecting to /dashboard...");
+      router.push("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   const {
     register,
@@ -46,23 +56,52 @@ export default function SignUpForm() {
   const isMinLength = passwordValue.length >= 8;
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    if (!isLoaded) return;
+    console.log("[SignUpForm] onSubmit triggered with email:", data.email);
+    if (!isLoaded) {
+      console.warn("[SignUpForm] onSubmit aborted: Clerk SDK not loaded yet.");
+      return;
+    }
 
     setIsSubmitting(true);
     setAuthError(null);
 
     try {
-      await signUp.create({
+      console.log("[SignUpForm] Resetting signUp attempt...");
+      await signUp.reset();
+
+      console.log("[SignUpForm] Calling signUp.create()...");
+      const result = await signUp.create({
         emailAddress: data.email,
         password: data.password,
       });
+      console.log("[SignUpForm] signUp.create returned:", result);
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      if (result && result.error) {
+        console.error("[SignUpForm] signUp.create returned error:", result.error);
+        if (result.error.message?.includes("already signed in")) {
+          console.warn("[SignUpForm] User is already signed in on Clerk. Clearing session...");
+          await signOut();
+          window.location.reload();
+          return;
+        }
+        setAuthError(result.error.message || "An error occurred during sign-up. Please try again.");
+        return;
+      }
+      console.log("[SignUpForm] signUp.create succeeded. Preparing verification code email...");
+
+      const prepResult = await signUp.verifications.sendEmailCode();
+      console.log("[SignUpForm] sendEmailCode returned:", prepResult);
+      if (prepResult && prepResult.error) {
+        console.error("[SignUpForm] sendEmailCode returned error:", prepResult.error);
+        setAuthError(prepResult.error.message || "Failed to send verification code.");
+        return;
+      }
+      console.log("[SignUpForm] Verification email prepared successfully. Switching UI to verification step...");
       setVerifying(true);
     } catch (error: any) {
-      console.error("Sign-up error:", error);
+      console.error("[SignUpForm] Sign-up caught error:", error);
       setAuthError(
-        error.errors?.[0]?.message ||
+        error.message ||
           "An error occurred during sign-up. Please try again.",
       );
     } finally {
@@ -74,29 +113,44 @@ export default function SignUpForm() {
     e: React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
-    if (!isLoaded || !signUp) return;
+    console.log("[SignUpForm] Verification form submitted with code:", verificationCode);
+    if (!isLoaded || !signUp) {
+      console.warn("[SignUpForm] Verification submission aborted: Clerk SDK or signUp object not ready.");
+      return;
+    }
 
     setIsSubmitting(true);
     setVerificationError(null);
 
     try {
-      const result = await signUp.attemptEmailAddressVerification({
+      console.log("[SignUpForm] Calling signUp.verifications.verifyEmailCode()...");
+      const result = await signUp.verifications.verifyEmailCode({
         code: verificationCode,
       });
+      console.log("[SignUpForm] verifyEmailCode returned:", result);
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
+      if (result && result.error) {
+        console.error("[SignUpForm] verifyEmailCode returned error:", result.error);
+        setVerificationError(result.error.message || "Verification code is incorrect.");
+        return;
+      }
+
+      console.log("[SignUpForm] Verification complete. Checking status on signUp object:", signUp.status);
+      if (signUp && signUp.status === "complete") {
+        console.log("[SignUpForm] Registration complete. Setting active session:", signUp.createdSessionId);
+        await setActive({ session: signUp.createdSessionId });
+        console.log("[SignUpForm] Active session set. Redirecting to /dashboard...");
+        window.location.href = "/dashboard";
       } else {
-        console.error("Verification incomplete:", result);
+        console.warn("[SignUpForm] Sign-up status is not complete:", signUp?.status);
         setVerificationError(
           "Verification could not be completed. Please try again.",
         );
       }
     } catch (error: any) {
-      console.error("Verification error:", error);
+      console.error("[SignUpForm] Verification caught error:", error);
       setVerificationError(
-        error.errors?.[0]?.message ||
+        error.message ||
           "An error occurred during verification. Please try again.",
       );
     } finally {
@@ -476,6 +530,9 @@ export default function SignUpForm() {
                 )}
               </div>
             </div>
+
+            {/* CAPTCHA Container */}
+            <div id="clerk-captcha" />
 
             {/* Submit Button */}
             <Button
