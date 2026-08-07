@@ -107,8 +107,7 @@ export default function FileList({
   const [height, setHeight] = useState<string>("");
   const [cropMode, setCropMode] = useState<string>("c-maintain_ratio");
   const [focus, setFocus] = useState<string>("center");
-  const [brightness, setBrightness] = useState(0);
-  const [contrast, setContrast] = useState(0);
+  const [contrast, setContrast] = useState(false);
   const [blur, setBlur] = useState(0);
   const [sharpen, setSharpen] = useState(0);
   const [rotation, setRotation] = useState(0);
@@ -133,8 +132,7 @@ export default function FileList({
     if (height) tr.push(`h-${height}`);
     if (cropMode && (width || height)) tr.push(cropMode);
     if (focus && focus !== "center") tr.push(focus);
-    if (brightness !== 0) tr.push(`e-brightness-${brightness}`);
-    if (contrast !== 0) tr.push(`e-contrast-${contrast}`);
+    if (contrast) tr.push("e-contrast");
     if (blur > 0) tr.push(`bl-${blur}`);
     if (sharpen > 0) tr.push(`e-sharpen-${sharpen}`);
     if (rotation !== 0) tr.push(`rt-${rotation}`);
@@ -177,8 +175,7 @@ export default function FileList({
       tr.push("w-1600", "c-at_max");
     }
 
-    if (brightness !== 0) tr.push(`e-brightness-${brightness}`);
-    if (contrast !== 0) tr.push(`e-contrast-${contrast}`);
+    if (contrast) tr.push("e-contrast");
     if (blur > 0) tr.push(`bl-${blur}`);
     if (sharpen > 0) tr.push(`e-sharpen-${sharpen}`);
     if (rotation !== 0) tr.push(`rt-${rotation}`);
@@ -280,8 +277,7 @@ export default function FileList({
     setHeight("");
     setCropMode("c-maintain_ratio");
     setFocus("center");
-    setBrightness(0);
-    setContrast(0);
+    setContrast(false);
     setBlur(0);
     setSharpen(0);
     setRotation(0);
@@ -364,7 +360,7 @@ export default function FileList({
       let h = "";
       let cm = "c-maintain_ratio";
       let f = "center";
-      let b = 0, c = 0, bl = 0, sh = 0, rt = 0, gs = false;
+      let c = false, bl = 0, sh = 0, rt = 0, gs = false;
       if (match) {
         const parts = match[1].split(",");
         parts.forEach((part) => {
@@ -384,10 +380,8 @@ export default function FileList({
             cm = part;
           } else if (part.startsWith("fo-")) {
             f = part;
-          } else if (part.startsWith("e-brightness-")) {
-            b = parseInt(part.replace("e-brightness-", "")) || 0;
-          } else if (part.startsWith("e-contrast-")) {
-            c = parseInt(part.replace("e-contrast-", "")) || 0;
+          } else if (part === "e-contrast") {
+            c = true;
           } else if (part.startsWith("bl-")) {
             bl = parseInt(part.replace("bl-", "")) || 0;
           } else if (part.startsWith("e-sharpen-")) {
@@ -404,7 +398,6 @@ export default function FileList({
       setHeight(h);
       setCropMode(cm);
       setFocus(f);
-      setBrightness(b);
       setContrast(c);
       setBlur(bl);
       setSharpen(sh);
@@ -416,8 +409,7 @@ export default function FileList({
       setHeight("");
       setCropMode("c-maintain_ratio");
       setFocus("center");
-      setBrightness(0);
-      setContrast(0);
+      setContrast(false);
       setBlur(0);
       setSharpen(0);
       setRotation(0);
@@ -1220,36 +1212,6 @@ export default function FileList({
                     {/* Sliders */}
                     <div className="space-y-2">
                       <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
-                        <span>Brightness</span>
-                        <span>{brightness}</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="-100"
-                        max="100"
-                        value={brightness}
-                        onChange={(e) => setBrightness(Number(e.target.value))}
-                        className="w-full accent-blue-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
-                        <span>Contrast</span>
-                        <span>{contrast}</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="-100"
-                        max="100"
-                        value={contrast}
-                        onChange={(e) => setContrast(Number(e.target.value))}
-                        className="w-full accent-blue-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
                         <span>Blur</span>
                         <span>{blur}</span>
                       </div>
@@ -1297,10 +1259,19 @@ export default function FileList({
                     </div>
 
                     {/* Filters */}
-                    <div className="space-y-3 pt-2 border-t border-stone-800">
+                    <div className="space-y-3 pt-2 border-t border-stone-800 flex flex-col gap-2">
                       <span className="text-[10px] font-mono text-stone-400 uppercase block">
                         Filters
                       </span>
+                      <label className="flex items-center gap-3 cursor-pointer text-sm text-stone-300">
+                        <input
+                          type="checkbox"
+                          checked={contrast}
+                          onChange={(e) => setContrast(e.target.checked)}
+                          className="accent-blue-500 w-4 h-4 rounded"
+                        />
+                        Auto Contrast
+                      </label>
                       <label className="flex items-center gap-3 cursor-pointer text-sm text-stone-300">
                         <input
                           type="checkbox"
