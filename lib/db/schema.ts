@@ -12,6 +12,7 @@ import {
   uuid,
   integer,
   boolean,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -49,6 +50,13 @@ export const files = pgTable("files", {
   // Timestamps
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    userIdIdx: index("user_id_idx").on(table.userId),
+    parentIdIdx: index("parent_id_idx").on(table.parentId),
+    isTrashIdx: index("is_trash_idx").on(table.isTrash),
+    isStarredIdx: index("is_starred_idx").on(table.isStarred),
+  };
 });
 
 /**
