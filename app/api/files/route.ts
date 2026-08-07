@@ -49,3 +49,48 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { name, path, size, type, fileUrl, thumbnailUrl, parentId } = body;
+
+    if (!name || !path || size === undefined || !type || !fileUrl) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
+    }
+
+    const fileData = {
+      name,
+      path,
+      size,
+      type,
+      fileUrl,
+      thumbnailUrl: thumbnailUrl || null,
+      userId,
+      parentId: parentId || null,
+      isFolder: false,
+      isStarred: false,
+      isTrash: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const [newFile] = await db.insert(files).values(fileData).returning();
+
+    return NextResponse.json(newFile);
+  } catch (error) {
+    console.error("Error creating file record:", error);
+    return NextResponse.json(
+      { error: "Failed to create file record" },
+      { status: 500 },
+    );
+  }
+}

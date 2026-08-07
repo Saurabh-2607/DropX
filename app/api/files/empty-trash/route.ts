@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { files } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, like } from "drizzle-orm";
 import ImageKit from "imagekit";
 
 // Initialize ImageKit with your credentials
@@ -50,22 +50,56 @@ export async function DELETE() {
 
           if (imagekitFileId) {
             try {
-              const searchResults = await imagekit.listFiles({
-                name: imagekitFileId,
-                limit: 1,
-              });
+              // Clean transformations from the path to get the base path
+              const cleanPath = file.path.replace(/^(tr:[^/]+\/)+/, "");
 
-              if (searchResults && searchResults.length > 0) {
-                await imagekit.deleteFile(searchResults[0].fileId);
+              // Find all database records that share the same base path
+              const otherRefs = await db
+                .select()
+                .from(files)
+                .where(
+                  and(
+                    eq(files.userId, userId),
+                    like(files.path, `%${cleanPath}`)
+                  )
+                );
+
+              // Only delete from ImageKit if this database record is the only reference remaining in the entire database (not just trash)
+              if (otherRefs.length <= 1) {
+                const searchResults = await imagekit.listFiles({
+                  name: imagekitFileId,
+                  limit: 1,
+                });
+
+                if (searchResults && searchResults.length > 0) {
+                  await imagekit.deleteFile(searchResults[0].fileId);
+                } else {
+                  await imagekit.deleteFile(imagekitFileId);
+                }
               } else {
-                await imagekit.deleteFile(imagekitFileId);
+                console.log(
+                  `Skipping ImageKit deletion during empty trash: ${otherRefs.length} database records reference base path ${cleanPath}`
+                );
               }
             } catch (searchError) {
               console.error(
                 `Error searching for file in ImageKit:`,
                 searchError,
               );
-              await imagekit.deleteFile(imagekitFileId);
+              // Safe check before blind deletion
+              const cleanPath = file.path.replace(/^(tr:[^/]+\/)+/, "");
+              const otherRefs = await db
+                .select()
+                .from(files)
+                .where(
+                  and(
+                    eq(files.userId, userId),
+                    like(files.path, `%${cleanPath}`)
+                  )
+                );
+              if (otherRefs.length <= 1) {
+                await imagekit.deleteFile(imagekitFileId);
+              }
             }
           }
         } catch (error) {

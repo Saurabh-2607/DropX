@@ -105,6 +105,16 @@ const FileItem = memo(
     onTrashFile,
     onPermanentDelete,
   }: FileItemProps) => {
+    const getThumbnailUrl = () => {
+      const norm = file.path.replace(/^\/+/, "");
+      const clean = norm.replace(/^(tr:[^/]+\/)+/, "");
+      const match = norm.match(/^tr:([^/]+)/);
+      if (match) {
+        return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${match[1]}:w-300,h-300,fo-auto/${clean}`;
+      }
+      return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${clean}`;
+    };
+
     return (
       <div
         onClick={() => onLightboxOpen(index)}
@@ -140,7 +150,7 @@ const FileItem = memo(
 
         {file.type.startsWith("image/") ? (
           <img
-            src={`${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${file.path}`}
+            src={getThumbnailUrl()}
             alt={file.name}
             className="absolute inset-0 w-full h-full object-cover"
           />

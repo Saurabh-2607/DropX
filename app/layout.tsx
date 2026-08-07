@@ -35,7 +35,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await currentUser();
+  let user = null;
+  try {
+    user = await currentUser();
+  } catch (error) {
+    console.error("Clerk API authentication error:", error);
+  }
+
   const serializedUser = user
     ? {
         id: user.id,

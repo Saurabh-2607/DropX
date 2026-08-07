@@ -103,6 +103,10 @@ export default function FileList({
 
   // Image Editing states
   const [isEditing, setIsEditing] = useState(false);
+  const [width, setWidth] = useState<string>("");
+  const [height, setHeight] = useState<string>("");
+  const [cropMode, setCropMode] = useState<string>("c-maintain_ratio");
+  const [focus, setFocus] = useState<string>("center");
   const [brightness, setBrightness] = useState(0);
   const [contrast, setContrast] = useState(0);
   const [blur, setBlur] = useState(0);
@@ -112,23 +116,67 @@ export default function FileList({
   const [savingState, setSavingState] = useState<
     "idle" | "saving" | "saving-as"
   >("idle");
+  const [editorTab, setEditorTab] = useState<"resize" | "adjust">("resize");
 
-  useEffect(() => {
-    setIsEditing(false);
-    setBrightness(0);
-    setContrast(0);
-    setBlur(0);
-    setSharpen(0);
-    setRotation(0);
-    setGrayscale(false);
-  }, [lightboxIndex]);
+  const getNormalizedPath = (path: string) => {
+    return path.replace(/^\/+/, "");
+  };
+
+  const cleanPath = (path: string) => {
+    const norm = getNormalizedPath(path);
+    return norm.replace(/^(tr:[^/]+\/)+/, "");
+  };
+
+  const getTransformationString = () => {
+    const tr = [];
+    if (width) tr.push(`w-${width}`);
+    if (height) tr.push(`h-${height}`);
+    if (cropMode && (width || height)) tr.push(cropMode);
+    if (focus && focus !== "center") tr.push(focus);
+    if (brightness !== 0) tr.push(`e-brightness-${brightness}`);
+    if (contrast !== 0) tr.push(`e-contrast-${contrast}`);
+    if (blur > 0) tr.push(`bl-${blur}`);
+    if (sharpen > 0) tr.push(`e-sharpen-${sharpen}`);
+    if (rotation !== 0) tr.push(`rt-${rotation}`);
+    if (grayscale) tr.push("e-grayscale");
+    return tr.length > 0 ? `tr:${tr.join(",")}` : "";
+  };
+
+
 
   const getPreviewImageUrl = (file: FileType) => {
-    return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-90,w-1600,c-at_max/${file.path}`;
+    const norm = getNormalizedPath(file.path);
+    const clean = cleanPath(file.path);
+    const match = norm.match(/^tr:([^/]+)/);
+    const tr = ["q-90"];
+    if (match) {
+      const savedTrs = match[1].split(",");
+      const hasWidth = savedTrs.some((t) => t.startsWith("w-"));
+      const hasHeight = savedTrs.some((t) => t.startsWith("h-"));
+      const hasCrop = savedTrs.some((t) => t.startsWith("c-") || t.startsWith("cm-"));
+
+      if (!hasWidth) tr.push("w-1600");
+      if (!hasCrop && !hasWidth && !hasHeight) tr.push("c-at_max");
+
+      tr.push(...savedTrs);
+    } else {
+      tr.push("w-1600", "c-at_max");
+    }
+    return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${tr.join(",")}/${clean}`;
   };
 
   const getEditedImageUrl = (file: FileType) => {
-    const tr = ["q-90", "w-1600", "c-at_max"];
+    const clean = cleanPath(file.path);
+    const tr = ["q-90"];
+    if (width) tr.push(`w-${width}`);
+    if (height) tr.push(`h-${height}`);
+    if (cropMode && (width || height)) tr.push(cropMode);
+    if (focus && focus !== "center") tr.push(focus);
+
+    if (!width && !height) {
+      tr.push("w-1600", "c-at_max");
+    }
+
     if (brightness !== 0) tr.push(`e-brightness-${brightness}`);
     if (contrast !== 0) tr.push(`e-contrast-${contrast}`);
     if (blur > 0) tr.push(`bl-${blur}`);
@@ -136,7 +184,7 @@ export default function FileList({
     if (rotation !== 0) tr.push(`rt-${rotation}`);
     if (grayscale) tr.push("e-grayscale");
 
-    return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${tr.join(",")}/${file.path}`;
+    return `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${tr.join(",")}/${clean}`;
   };
 
   const handleSaveEdit = async () => {
@@ -144,16 +192,26 @@ export default function FileList({
     const file = filteredFiles[lightboxIndex];
     setSavingState("saving");
     try {
-      const url = getEditedImageUrl(file);
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const formData = new FormData();
-      formData.append("file", blob, file.name);
+      const trStr = getTransformationString();
+      const cleaned = cleanPath(file.path);
+      const newPath = trStr ? `${trStr}/${cleaned}` : cleaned;
 
-      const response = await axios.post(
-        `/api/files/${file.id}/replace`,
-        formData,
-      );
+      const dbPath = newPath.startsWith("/") ? newPath : `/${newPath}`;
+      const newFileUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}${dbPath}`;
+
+      const norm = newPath.replace(/^\/+/, "");
+      const clean = norm.replace(/^(tr:[^/]+\/)+/, "");
+      const match = norm.match(/^tr:([^/]+)/);
+      const newThumbnailUrl = match
+        ? `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${match[1]}:w-300,h-300,fo-auto/${clean}`
+        : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${clean}`;
+
+      const response = await axios.patch(`/api/files/${file.id}`, {
+        path: dbPath,
+        fileUrl: newFileUrl,
+        thumbnailUrl: newThumbnailUrl,
+      });
+
       if (response.status === 200) {
         setFiles(files.map((f) => (f.id === file.id ? response.data : f)));
         setIsEditing(false);
@@ -175,16 +233,32 @@ export default function FileList({
     const file = filteredFiles[lightboxIndex];
     setSavingState("saving-as");
     try {
-      const url = getEditedImageUrl(file);
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const formData = new FormData();
-      const newName = file.name.replace(/(\.[^.]+)$/, "_edited$1");
-      formData.append("file", blob, newName);
-      formData.append("userId", userId);
-      if (file.parentId) formData.append("parentId", file.parentId);
+      const trStr = getTransformationString();
+      const cleaned = cleanPath(file.path);
+      const newPath = trStr ? `${trStr}/${cleaned}` : cleaned;
 
-      const response = await axios.post(`/api/files/upload`, formData);
+      const dbPath = newPath.startsWith("/") ? newPath : `/${newPath}`;
+      const newFileUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}${dbPath}`;
+
+      const norm = newPath.replace(/^\/+/, "");
+      const clean = norm.replace(/^(tr:[^/]+\/)+/, "");
+      const match = norm.match(/^tr:([^/]+)/);
+      const newThumbnailUrl = match
+        ? `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${match[1]}:w-300,h-300,fo-auto/${clean}`
+        : `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:w-300,h-300,fo-auto/${clean}`;
+
+      const newName = file.name.replace(/(\.[^.]+)$/, "_edited$1");
+
+      const response = await axios.post(`/api/files`, {
+        name: newName,
+        path: dbPath,
+        size: file.size,
+        type: file.type,
+        fileUrl: newFileUrl,
+        thumbnailUrl: newThumbnailUrl,
+        parentId: file.parentId || null,
+      });
+
       if (response.status === 200) {
         setFiles([response.data, ...files]);
         setIsEditing(false);
@@ -199,6 +273,19 @@ export default function FileList({
     } finally {
       setSavingState("idle");
     }
+  };
+
+  const handleResetToOriginal = () => {
+    setWidth("");
+    setHeight("");
+    setCropMode("c-maintain_ratio");
+    setFocus("center");
+    setBrightness(0);
+    setContrast(0);
+    setBlur(0);
+    setSharpen(0);
+    setRotation(0);
+    setGrayscale(false);
   };
 
   const handleDownloadEdit = async () => {
@@ -267,6 +354,76 @@ export default function FileList({
 
     return result.filter((file) => !file.isFolder);
   }, [files, activeTab]);
+
+  useEffect(() => {
+    if (lightboxIndex !== null && filteredFiles[lightboxIndex]) {
+      const file = filteredFiles[lightboxIndex];
+      const norm = getNormalizedPath(file.path);
+      const match = norm.match(/^tr:([^/]+)/);
+      let w = "";
+      let h = "";
+      let cm = "c-maintain_ratio";
+      let f = "center";
+      let b = 0, c = 0, bl = 0, sh = 0, rt = 0, gs = false;
+      if (match) {
+        const parts = match[1].split(",");
+        parts.forEach((part) => {
+          if (part.startsWith("w-")) {
+            w = part.replace("w-", "");
+          } else if (part.startsWith("h-")) {
+            h = part.replace("h-", "");
+          } else if (
+            part === "c-maintain_ratio" ||
+            part === "cm-pad_resize" ||
+            part === "c-force" ||
+            part === "c-at_max" ||
+            part === "c-at_least" ||
+            part === "cm-extract" ||
+            part === "cm-pad_extract"
+          ) {
+            cm = part;
+          } else if (part.startsWith("fo-")) {
+            f = part;
+          } else if (part.startsWith("e-brightness-")) {
+            b = parseInt(part.replace("e-brightness-", "")) || 0;
+          } else if (part.startsWith("e-contrast-")) {
+            c = parseInt(part.replace("e-contrast-", "")) || 0;
+          } else if (part.startsWith("bl-")) {
+            bl = parseInt(part.replace("bl-", "")) || 0;
+          } else if (part.startsWith("e-sharpen-")) {
+            sh = parseInt(part.replace("e-sharpen-", "")) || 0;
+          } else if (part.startsWith("rt-")) {
+            rt = parseInt(part.replace("rt-", "")) || 0;
+          } else if (part === "e-grayscale") {
+            gs = true;
+          }
+        });
+      }
+      setIsEditing(false);
+      setWidth(w);
+      setHeight(h);
+      setCropMode(cm);
+      setFocus(f);
+      setBrightness(b);
+      setContrast(c);
+      setBlur(bl);
+      setSharpen(sh);
+      setRotation(rt);
+      setGrayscale(gs);
+    } else {
+      setIsEditing(false);
+      setWidth("");
+      setHeight("");
+      setCropMode("c-maintain_ratio");
+      setFocus("center");
+      setBrightness(0);
+      setContrast(0);
+      setBlur(0);
+      setSharpen(0);
+      setRotation(0);
+      setGrayscale(false);
+    }
+  }, [lightboxIndex, filteredFiles]);
 
   // Count files in trash
   const trashCount = useMemo(() => {
@@ -523,7 +680,13 @@ export default function FileList({
       try {
         let downloadUrl = file.fileUrl;
         if (file.type.startsWith("image/")) {
-          downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
+          const clean = cleanPath(file.path);
+          const match = file.path.match(/^tr:([^/]+)/);
+          const tr = ["q-100", "orig-true"];
+          if (match) {
+            tr.push(match[1]);
+          }
+          downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${tr.join(",")}/${clean}`;
         }
 
         const response = await fetch(downloadUrl);
@@ -616,7 +779,13 @@ export default function FileList({
 
       let downloadUrl = file.fileUrl;
       if (file.type.startsWith("image/")) {
-        downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:q-100,orig-true/${file.path}`;
+        const clean = cleanPath(file.path);
+        const match = file.path.match(/^tr:([^/]+)/);
+        const tr = ["q-100", "orig-true"];
+        if (match) {
+          tr.push(match[1]);
+        }
+        downloadUrl = `${process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}/tr:${tr.join(",")}/${clean}`;
       }
 
       const response = await fetch(downloadUrl);
@@ -852,17 +1021,9 @@ export default function FileList({
             <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4 transition-all duration-300">
               {filteredFiles[lightboxIndex].type.startsWith("image/") ? (
                 <img
-                  src={getPreviewImageUrl(filteredFiles[lightboxIndex])}
+                  src={isEditing ? getEditedImageUrl(filteredFiles[lightboxIndex]) : getPreviewImageUrl(filteredFiles[lightboxIndex])}
                   alt={filteredFiles[lightboxIndex].name}
                   className="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-all duration-100"
-                  style={
-                    isEditing
-                      ? {
-                          filter: `brightness(${100 + brightness}%) contrast(${100 + contrast}%) blur(${blur / 10}px) ${grayscale ? "grayscale(100%)" : ""}`,
-                          transform: `rotate(${rotation}deg)`,
-                        }
-                      : {}
-                  }
                 />
               ) : filteredFiles[lightboxIndex].type.startsWith("video/") ? (
                 <video
@@ -938,109 +1099,220 @@ export default function FileList({
                 <h4 className="text-sm font-bold text-white font-mono uppercase">
                   Image Editor
                 </h4>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleResetToOriginal}
+                    className="text-[10px] font-mono font-bold uppercase tracking-wider text-red-500 hover:text-red-400 transition-colors cursor-pointer"
+                    title="Reset all transformations"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="text-stone-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Editor Tabs */}
+              <div className="flex border-b border-stone-800 pb-1">
                 <button
-                  onClick={() => setIsEditing(false)}
-                  className="text-stone-400 hover:text-white"
+                  onClick={() => setEditorTab("resize")}
+                  className={`flex-1 pb-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-colors ${
+                    editorTab === "resize"
+                      ? "text-blue-500 border-b-2 border-blue-500"
+                      : "text-stone-400 hover:text-white"
+                  }`}
                 >
-                  <X className="w-4 h-4" />
+                  Resize & Crop
+                </button>
+                <button
+                  onClick={() => setEditorTab("adjust")}
+                  className={`flex-1 pb-2 text-[10px] font-mono font-bold uppercase tracking-wider transition-colors ${
+                    editorTab === "adjust"
+                      ? "text-blue-500 border-b-2 border-blue-500"
+                      : "text-stone-400 hover:text-white"
+                  }`}
+                >
+                  Adjustments
                 </button>
               </div>
 
               <div className="space-y-5 flex-grow">
-                {/* Sliders */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
-                    <span>Brightness</span>
-                    <span>{brightness}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="-100"
-                    max="100"
-                    value={brightness}
-                    onChange={(e) => setBrightness(Number(e.target.value))}
-                    className="w-full accent-blue-500"
-                  />
-                </div>
+                {editorTab === "resize" ? (
+                  <div className="space-y-4">
+                    {/* Width & Height */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                          Width (w)
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="e.g. 400"
+                          value={width}
+                          onChange={(e) => setWidth(e.target.value)}
+                          className="w-full h-9 px-2.5 bg-stone-850 border border-stone-700 rounded-lg text-xs text-white focus:outline-none focus:border-blue-500 transition-colors font-mono"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                          Height (h)
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="e.g. 300"
+                          value={height}
+                          onChange={(e) => setHeight(e.target.value)}
+                          className="w-full h-9 px-2.5 bg-stone-850 border border-stone-700 rounded-lg text-xs text-white focus:outline-none focus:border-blue-500 transition-colors font-mono"
+                        />
+                      </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
-                    <span>Contrast</span>
-                    <span>{contrast}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="-100"
-                    max="100"
-                    value={contrast}
-                    onChange={(e) => setContrast(Number(e.target.value))}
-                    className="w-full accent-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
-                    <span>Blur</span>
-                    <span>{blur}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={blur}
-                    onChange={(e) => setBlur(Number(e.target.value))}
-                    className="w-full accent-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
-                    <span>Sharpen</span>
-                    <span>{sharpen}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={sharpen}
-                    onChange={(e) => setSharpen(Number(e.target.value))}
-                    className="w-full accent-blue-500"
-                  />
-                </div>
-
-                {/* Rotation Presets */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-mono text-stone-400 uppercase block">
-                    Rotation
-                  </span>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[0, 90, 180, 270].map((deg) => (
-                      <button
-                        key={deg}
-                        onClick={() => setRotation(deg)}
-                        className={`py-1 text-xs font-mono rounded border ${rotation === deg ? "bg-blue-600 border-blue-500 text-white" : "bg-stone-800 border-stone-700 text-stone-300 hover:bg-stone-700"}`}
+                    {/* Crop Mode */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                        Crop Mode (c/cm)
+                      </span>
+                      <select
+                        value={cropMode}
+                        onChange={(e) => setCropMode(e.target.value)}
+                        className="w-full h-9 px-2.5 bg-stone-850 border border-stone-700 rounded-lg text-[11px] text-white focus:outline-none focus:border-blue-500 transition-colors font-mono bg-stone-900"
                       >
-                        {deg}°
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        <option value="c-maintain_ratio">c-maintain_ratio (Default Crop)</option>
+                        <option value="cm-pad_resize">cm-pad_resize (Pad Resize)</option>
+                        <option value="c-force">c-force (Stretch / Forced)</option>
+                        <option value="c-at_max">c-at_max (Fit inside Max)</option>
+                        <option value="c-at_least">c-at_least (Fit inside Min)</option>
+                        <option value="cm-extract">cm-extract (Raw Extract)</option>
+                        <option value="cm-pad_extract">cm-pad_extract (Pad & Extract)</option>
+                      </select>
+                    </div>
 
-                {/* Filters */}
-                <div className="space-y-3 pt-2 border-t border-stone-800">
-                  <span className="text-[10px] font-mono text-stone-400 uppercase block">
-                    Filters
-                  </span>
-                  <label className="flex items-center gap-3 cursor-pointer text-sm text-stone-300">
-                    <input
-                      type="checkbox"
-                      checked={grayscale}
-                      onChange={(e) => setGrayscale(e.target.checked)}
-                      className="accent-blue-500 w-4 h-4 rounded"
-                    />
-                    Grayscale
-                  </label>
-                </div>
+                    {/* Focus */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                        Focus / Crop Origin (fo)
+                      </span>
+                      <select
+                        value={focus}
+                        onChange={(e) => setFocus(e.target.value)}
+                        className="w-full h-9 px-2.5 bg-stone-850 border border-stone-700 rounded-lg text-[11px] text-white focus:outline-none focus:border-blue-500 transition-colors font-mono bg-stone-900"
+                      >
+                        <option value="center">center (Default Center)</option>
+                        <option value="fo-top">fo-top (Top)</option>
+                        <option value="fo-bottom">fo-bottom (Bottom)</option>
+                        <option value="fo-left">fo-left (Left)</option>
+                        <option value="fo-right">fo-right (Right)</option>
+                        <option value="fo-top_left">fo-top_left (Top Left)</option>
+                        <option value="fo-top_right">fo-top_right (Top Right)</option>
+                        <option value="fo-bottom_left">fo-bottom_left (Bottom Left)</option>
+                        <option value="fo-bottom_right">fo-bottom_right (Bottom Right)</option>
+                        <option value="fo-auto">fo-auto (Smart Auto)</option>
+                        <option value="fo-face">fo-face (Face Detect)</option>
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    {/* Sliders */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                        <span>Brightness</span>
+                        <span>{brightness}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={brightness}
+                        onChange={(e) => setBrightness(Number(e.target.value))}
+                        className="w-full accent-blue-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                        <span>Contrast</span>
+                        <span>{contrast}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-100"
+                        max="100"
+                        value={contrast}
+                        onChange={(e) => setContrast(Number(e.target.value))}
+                        className="w-full accent-blue-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                        <span>Blur</span>
+                        <span>{blur}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={blur}
+                        onChange={(e) => setBlur(Number(e.target.value))}
+                        className="w-full accent-blue-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-stone-400 uppercase">
+                        <span>Sharpen</span>
+                        <span>{sharpen}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={sharpen}
+                        onChange={(e) => setSharpen(Number(e.target.value))}
+                        className="w-full accent-blue-500"
+                      />
+                    </div>
+
+                    {/* Rotation Presets */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                        Rotation
+                      </span>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[0, 90, 180, 270].map((deg) => (
+                          <button
+                            key={deg}
+                            onClick={() => setRotation(deg)}
+                            className={`py-1 text-xs font-mono rounded border ${rotation === deg ? "bg-blue-600 border-blue-500 text-white" : "bg-stone-800 border-stone-700 text-stone-300 hover:bg-stone-700"}`}
+                          >
+                            {deg}°
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Filters */}
+                    <div className="space-y-3 pt-2 border-t border-stone-800">
+                      <span className="text-[10px] font-mono text-stone-400 uppercase block">
+                        Filters
+                      </span>
+                      <label className="flex items-center gap-3 cursor-pointer text-sm text-stone-300">
+                        <input
+                          type="checkbox"
+                          checked={grayscale}
+                          onChange={(e) => setGrayscale(e.target.checked)}
+                          className="accent-blue-500 w-4 h-4 rounded"
+                        />
+                        Grayscale
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
