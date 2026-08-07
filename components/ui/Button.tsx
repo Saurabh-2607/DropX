@@ -2,8 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "charcoal";
   size?: "sm" | "md" | "lg" | "responsive" | "form";
   href?: string;

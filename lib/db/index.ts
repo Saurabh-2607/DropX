@@ -36,5 +36,7 @@ export const db = drizzle(sql, { schema });
  *
  * import { sql } from './db';
  * const result = await sql`SELECT * FROM files WHERE user_id = ${userId}`;
+ * 
+ * @public
  */
 export { sql };

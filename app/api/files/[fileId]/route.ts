@@ -116,8 +116,8 @@ export async function DELETE(
               .where(
                 and(
                   eq(files.userId, userId),
-                  like(files.path, `%${cleanPath}`)
-                )
+                  like(files.path, `%${cleanPath}`),
+                ),
               );
 
             // Only delete from ImageKit if this database record is the only reference remaining
@@ -134,7 +134,7 @@ export async function DELETE(
               }
             } else {
               console.log(
-                `Skipping ImageKit deletion: ${otherRefs.length} database records reference base path ${cleanPath}`
+                `Skipping ImageKit deletion: ${otherRefs.length} database records reference base path ${cleanPath}`,
               );
             }
           } catch (searchError) {
@@ -147,8 +147,8 @@ export async function DELETE(
               .where(
                 and(
                   eq(files.userId, userId),
-                  like(files.path, `%${cleanPath}`)
-                )
+                  like(files.path, `%${cleanPath}`),
+                ),
               );
             if (otherRefs.length <= 1) {
               await imagekit.deleteFile(imagekitFileId);

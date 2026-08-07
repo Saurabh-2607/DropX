@@ -22,7 +22,7 @@ declare module "@react-types/shared" {
   }
 }
 
-// Create a context for ImageKit authentication
+/** @public */
 export const ImageKitAuthContext = createContext<{
   authenticate: () => Promise<{
     signature: string;
@@ -33,6 +33,7 @@ export const ImageKitAuthContext = createContext<{
   authenticate: async () => ({ signature: "", token: "", expire: 0 }),
 });
 
+/** @public */
 export const useImageKitAuth = () => useContext(ImageKitAuthContext);
 
 // ImageKit authentication function

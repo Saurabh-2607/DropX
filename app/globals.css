@@ -50,8 +50,8 @@
   --radius-2xl: 16px;
 
   /* Shadows */
-  --shadow-xl: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
-    rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
+  --shadow-xl:
+    rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

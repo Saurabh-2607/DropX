@@ -140,8 +140,6 @@ export default function FileList({
     return tr.length > 0 ? `tr:${tr.join(",")}` : "";
   };
 
-
-
   const getPreviewImageUrl = (file: FileType) => {
     const norm = getNormalizedPath(file.path);
     const clean = cleanPath(file.path);
@@ -151,7 +149,9 @@ export default function FileList({
       const savedTrs = match[1].split(",");
       const hasWidth = savedTrs.some((t) => t.startsWith("w-"));
       const hasHeight = savedTrs.some((t) => t.startsWith("h-"));
-      const hasCrop = savedTrs.some((t) => t.startsWith("c-") || t.startsWith("cm-"));
+      const hasCrop = savedTrs.some(
+        (t) => t.startsWith("c-") || t.startsWith("cm-"),
+      );
 
       if (!hasWidth) tr.push("w-1600");
       if (!hasCrop && !hasWidth && !hasHeight) tr.push("c-at_max");
@@ -360,7 +360,11 @@ export default function FileList({
       let h = "";
       let cm = "c-maintain_ratio";
       let f = "center";
-      let c = false, bl = 0, sh = 0, rt = 0, gs = false;
+      let c = false,
+        bl = 0,
+        sh = 0,
+        rt = 0,
+        gs = false;
       if (match) {
         const parts = match[1].split(",");
         parts.forEach((part) => {
@@ -1013,7 +1017,11 @@ export default function FileList({
             <div className="w-full h-full flex items-center justify-center max-h-[75vh] p-4 transition-all duration-300">
               {filteredFiles[lightboxIndex].type.startsWith("image/") ? (
                 <img
-                  src={isEditing ? getEditedImageUrl(filteredFiles[lightboxIndex]) : getPreviewImageUrl(filteredFiles[lightboxIndex])}
+                  src={
+                    isEditing
+                      ? getEditedImageUrl(filteredFiles[lightboxIndex])
+                      : getPreviewImageUrl(filteredFiles[lightboxIndex])
+                  }
                   alt={filteredFiles[lightboxIndex].name}
                   className="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-all duration-100"
                 />
@@ -1173,13 +1181,27 @@ export default function FileList({
                         onChange={(e) => setCropMode(e.target.value)}
                         className="w-full h-9 px-2.5 bg-stone-850 border border-stone-700 rounded-lg text-[11px] text-white focus:outline-none focus:border-blue-500 transition-colors font-mono bg-stone-900"
                       >
-                        <option value="c-maintain_ratio">c-maintain_ratio (Default Crop)</option>
-                        <option value="cm-pad_resize">cm-pad_resize (Pad Resize)</option>
-                        <option value="c-force">c-force (Stretch / Forced)</option>
-                        <option value="c-at_max">c-at_max (Fit inside Max)</option>
-                        <option value="c-at_least">c-at_least (Fit inside Min)</option>
-                        <option value="cm-extract">cm-extract (Raw Extract)</option>
-                        <option value="cm-pad_extract">cm-pad_extract (Pad & Extract)</option>
+                        <option value="c-maintain_ratio">
+                          c-maintain_ratio (Default Crop)
+                        </option>
+                        <option value="cm-pad_resize">
+                          cm-pad_resize (Pad Resize)
+                        </option>
+                        <option value="c-force">
+                          c-force (Stretch / Forced)
+                        </option>
+                        <option value="c-at_max">
+                          c-at_max (Fit inside Max)
+                        </option>
+                        <option value="c-at_least">
+                          c-at_least (Fit inside Min)
+                        </option>
+                        <option value="cm-extract">
+                          cm-extract (Raw Extract)
+                        </option>
+                        <option value="cm-pad_extract">
+                          cm-pad_extract (Pad & Extract)
+                        </option>
                       </select>
                     </div>
 
@@ -1198,10 +1220,18 @@ export default function FileList({
                         <option value="fo-bottom">fo-bottom (Bottom)</option>
                         <option value="fo-left">fo-left (Left)</option>
                         <option value="fo-right">fo-right (Right)</option>
-                        <option value="fo-top_left">fo-top_left (Top Left)</option>
-                        <option value="fo-top_right">fo-top_right (Top Right)</option>
-                        <option value="fo-bottom_left">fo-bottom_left (Bottom Left)</option>
-                        <option value="fo-bottom_right">fo-bottom_right (Bottom Right)</option>
+                        <option value="fo-top_left">
+                          fo-top_left (Top Left)
+                        </option>
+                        <option value="fo-top_right">
+                          fo-top_right (Top Right)
+                        </option>
+                        <option value="fo-bottom_left">
+                          fo-bottom_left (Bottom Left)
+                        </option>
+                        <option value="fo-bottom_right">
+                          fo-bottom_right (Bottom Right)
+                        </option>
                         <option value="fo-auto">fo-auto (Smart Auto)</option>
                         <option value="fo-face">fo-face (Face Detect)</option>
                       </select>

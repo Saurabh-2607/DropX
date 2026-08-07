@@ -36,7 +36,7 @@ A simple file storage application built with Next.js, Clerk, Neon, Drizzle, and 
    ```
 
 2. Install dependencies:
-   *(Note: This project includes an `.npmrc` configured with `legacy-peer-deps=true` to handle peer dependency conflicts between Next.js, ESLint, and HeroUI)*
+   _(Note: This project includes an `.npmrc` configured with `legacy-peer-deps=true` to handle peer dependency conflicts between Next.js, ESLint, and HeroUI)_
 
    ```bash
    npm install

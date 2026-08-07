@@ -1,7 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import DashboardContent from "@/components/DashboardContent";
-import { CloudUpload } from "lucide-react";
 import { db } from "@/lib/db";
 import { files } from "@/lib/db/schema";
 import { eq, and, isNull, desc } from "drizzle-orm";
