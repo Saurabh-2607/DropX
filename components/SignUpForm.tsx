@@ -233,9 +233,14 @@ export default function SignUpForm() {
               <button
                 onClick={async () => {
                   if (signUp) {
-                    await signUp.prepareEmailAddressVerification({
-                      strategy: "email_code",
-                    });
+                    console.log("[SignUpForm] Resending email verification code...");
+                    const res = await signUp.verifications.sendEmailCode();
+                    if (res && res.error) {
+                      console.error("[SignUpForm] Resend code returned error:", res.error);
+                      setVerificationError(res.error.message || "Failed to resend code.");
+                    } else {
+                      console.log("[SignUpForm] Verification code resent successfully.");
+                    }
                   }
                 }}
                 className="underline text-[#3C3833] font-medium"
